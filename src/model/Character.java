@@ -1,31 +1,44 @@
 package model;
 
+import java.util.Objects;
+
 public class Character {
     private Position location;
-    private Position startLocation;
+    private Position startLoc;
+
+    public Position getStartLoc() {
+        return startLoc;
+    }
 
     public Character(Position startLocation) {
-        this.startLocation = startLocation;
         this.location = startLocation;
+        this.startLoc = startLocation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Character character = (Character) o;
+        return Objects.equals(getLocation(), character.getLocation());
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
     }
 
     public Position getLocation() {
         return location;
     }
 
-    public void setLocation(Position location) {
-        this.location = location;
+
+
+
+
+    public void moveChar(Direction d){
+        location =  new Position(location.x + d.x, location.y + d.y);
     }
 
-    public Position getStartLocation() {
-        return startLocation;
-    }
 
-    public void setStartLocation(Position startLocation) {
-        this.startLocation = startLocation;
-    }
-
-    public Position moveChar(Direction d){
-        return new Position(location.x + d.x, location.y + d.y);
-    }
 }

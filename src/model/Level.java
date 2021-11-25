@@ -1,17 +1,19 @@
 package model;
 
 public class Level {
-    MazeGenerator mazeGenerator;
-    int mapSize;
-    int[][] map;
+    private final int mapSize;
+    private final int[][] map;
 
     public int getMap(int x, int y) {
         return map[x][y];
     }
 
+    public int getMapSize() {
+        return mapSize;
+    }
+
     public Level(int mapSize) {
-        this.mapSize = mapSize;
-        mazeGenerator = new MazeGenerator(mapSize,mapSize);
-        map = mazeGenerator.toMatrix(mazeGenerator.displayWithMatrix());
+        map = new MazeGenerator(mapSize,mapSize).getMatrix();
+        this.mapSize = mapSize*2-1;
     }
 }

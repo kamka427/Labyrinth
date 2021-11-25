@@ -3,63 +3,123 @@ package model;
 import java.util.Random;
 
 public class Game {
-    Player player;
-    Dragon dragon;
-    Level level;
-    int completedCount;
+    private Player player;
+    private Dragon dragon;
+    private Level level;
+    private int completedCount;
+    private int mapSize;
+    private int generationSize;
+    private boolean randomized;
 
-    Game(int mapSize) {
-        level = new Level(mapSize);
-        player = new Player(new Position(0, 0));
+    public Game(int Size) {
+        generationSize = Size;
+        this.mapSize = Size * 2 + 1;
+        level = new Level(Size);
+        player = new Player(new Position(Size * 2 - 1, 1));
         dragon = new Dragon(generateStart());
         completedCount = 0;
+        randomized = false;
     }
-    Position generateStart(){
+
+    public Game() {
         Random rnd = new Random();
-        int rndX = rnd.nextInt(level.mapSize);
-        int rndY = rnd.nextInt(level.mapSize);
+        generationSize = rnd.nextInt(10 - 6) + 6;
+        this.mapSize = (generationSize * 2 + 1);
+        level = new Level(generationSize);
+        player = new Player(new Position(generationSize * 2 - 1, 1));
+        dragon = new Dragon(generateStart());
+        completedCount = 0;
+        randomized = true;
+    }
 
-        while (level.getMap(rndX,rndY) != 0)
-        {
-            rndX = rnd.nextInt(level.mapSize);
-            rndY = rnd.nextInt(level.mapSize);
+    public String getCompletedCount() {
+        return "Teljesített pályák száma: " + completedCount;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+
+    public Dragon getDragon() {
+        return dragon;
+    }
+
+
+    public Level getLevel() {
+        return level;
+    }
+
+
+    public void addToCompletedCount() {
+        this.completedCount++;
+    }
+
+    public int getMapSize() {
+        return mapSize;
+    }
+
+
+    Position generateStart() {
+        Random rnd = new Random();
+        int rndX = rnd.nextInt(generationSize/2 * 2 - 1);
+        int rndY = rnd.nextInt(generationSize * 2 - 1);
+
+        while (level.getMap(rndX, rndY) != 0) {
+            rndX = rnd.nextInt(generationSize/2 * 2 - 1);
+            rndY = rnd.nextInt(generationSize * 2 - 1);
         }
-        return new Position(rndX,rndY);
-    }
-    boolean isEnded(){
-        return player.getLocation().equals(dragon.getLocation());
+        return new Position(rndX, rndY);
     }
 
-    boolean isCompleted(){
-        return player.getLocation().equals(new Position(0,level.mapSize-1));
+    public boolean isEnded() {
+        return player.getLocation().x + 1 == dragon.getLocation().x && player.getLocation().y == dragon.getLocation().y ||
+                player.getLocation().x - 1 == dragon.getLocation().x && player.getLocation().y == dragon.getLocation().y ||
+                player.getLocation().x == dragon.getLocation().x && player.getLocation().y + 1 == dragon.getLocation().y ||
+                player.getLocation().x == dragon.getLocation().x && player.getLocation().y - 1 == dragon.getLocation().y;
     }
 
-    public boolean isValidPosition(Position p) {
-        return (p.x >= 0 && p.y >= 0 && p.x < level.mapSize && p.y < level.mapSize);
+    public boolean isCompleted() {
+        return player.getLocation().x == 1 && player.getLocation().y == level.getMapSize() && !isEnded();
     }
+
+    public void newLevel() {
+        if (randomized) {
+            Random rnd = new Random();
+            generationSize = rnd.nextInt(10 - 6) + 6;
+            mapSize = generationSize * 2 + 1;
+
+
+        }
+        level = new Level(generationSize);
+        player = new Player(new Position(mapSize - 2, 1));
+        dragon = new Dragon(generateStart());
+    }
+
+    public int getGenerationSize() {
+        return generationSize;
+    }
+
 
     public boolean isFree(Position p) {
-        if (!isValidPosition(p)) return false;
-        else return level.map[p.x][p.y] == 0;
+        return level.getMap(p.x, p.y) == 0;
     }
 
-    public boolean movePlayer(Direction d) {
+    public void movePlayer(Direction d) {
         Position curr = player.getLocation();
         Position next = curr.moveNext(d);
-        if (isFree(next)) {
+        if (isFree(next) && !isEnded()) {
             player.moveChar(d);
-            return true;
         }
-        return false;
     }
 
     public void moveDragon() {
         Position curr = dragon.getLocation();
-        Position next = curr.moveNext(dragon.currentD);
+        Position next = curr.moveNext(dragon.getCurrentD());
         if (isFree(next)) {
-            player.moveChar(dragon.currentD);
+            dragon.moveChar(dragon.getCurrentD());
         } else {
-            dragon.newDirection();
+            dragon.newDirection(isFree(curr.moveNext(Direction.UP)), isFree(curr.moveNext(Direction.DOWN)), isFree(curr.moveNext(Direction.LEFT)), isFree(curr.moveNext(Direction.RIGHT)));
         }
     }
 }
