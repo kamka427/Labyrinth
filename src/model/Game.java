@@ -40,16 +40,13 @@ public class Game {
         return player;
     }
 
-
     public Dragon getDragon() {
         return dragon;
     }
 
-
     public Level getLevel() {
         return level;
     }
-
 
     public void addToCompletedCount() {
         this.completedCount++;
@@ -58,7 +55,6 @@ public class Game {
     public int getMapSize() {
         return mapSize;
     }
-
 
     Position generateStart() {
         Random rnd = new Random();
@@ -80,7 +76,7 @@ public class Game {
     }
 
     public boolean isCompleted() {
-        return player.getLocation().x == 1 && player.getLocation().y == level.getMapSize() && !isEnded();
+        return player.getLocation().x == 1 && player.getLocation().y == level.getRealSize() && !isEnded();
     }
 
     public void newLevel() {
@@ -88,8 +84,6 @@ public class Game {
             Random rnd = new Random();
             generationSize = rnd.nextInt(10 - 6) + 6;
             mapSize = generationSize * 2 + 1;
-
-
         }
         level = new Level(generationSize);
         player = new Player(new Position(mapSize - 2, 1));

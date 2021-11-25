@@ -4,15 +4,15 @@ import java.util.Objects;
 
 public class Character {
     private Position location;
-    private Position startLoc;
-
-    public Position getStartLoc() {
-        return startLoc;
-    }
+    private final Position startLoc;
 
     public Character(Position startLocation) {
         this.location = startLocation;
         this.startLoc = startLocation;
+    }
+
+    public Position getStartLoc() {
+        return startLoc;
     }
 
     @Override
@@ -32,13 +32,7 @@ public class Character {
         return location;
     }
 
-
-
-
-
-    public void moveChar(Direction d){
-        location =  new Position(location.x + d.x, location.y + d.y);
+    public void moveChar(Direction d) {
+        location = new Position(location.x + d.x, location.y + d.y);
     }
-
-
 }

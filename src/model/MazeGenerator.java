@@ -21,7 +21,6 @@ public class MazeGenerator {
         generateMaze(0, 0);
         toMatrix(displayWithMatrix());
         removeWalls();
-
     }
 
     private static boolean between(int v, int upper) {
@@ -79,7 +78,6 @@ public class MazeGenerator {
         //  System.out.println("1");
         sb.append("1");
         return sb.toString();
-
     }
 
     public void toMatrix(String data) {
@@ -92,9 +90,9 @@ public class MazeGenerator {
     }
 
     private void generateMaze(int cx, int cy) {
-        EXPLORATION[] mazedirs = EXPLORATION.values();
+        Exploration[] mazedirs = Exploration.values();
         Collections.shuffle(Arrays.asList(mazedirs));
-        for (EXPLORATION dir : mazedirs) {
+        for (Exploration dir : mazedirs) {
             int nx = cx + dir.dx;
             int ny = cy + dir.dy;
             if (between(nx, x) && between(ny, y)
@@ -108,46 +106,42 @@ public class MazeGenerator {
 
     public void removeWalls() {
 
-            Random rnd = new Random();
+        Random rnd = new Random();
 
-            int tries = 0;
-            int r1;
-            int r2;
-            while (true) {
-                r1 = rnd.nextInt((matrixSize - 1) - 1) + 1;
-                r2 = rnd.nextInt((matrixSize - 1) - 1) + 1;
+        int tries = 0;
+        int r1;
+        int r2;
+        while (true) {
+            r1 = rnd.nextInt((matrixSize - 1) - 1) + 1;
+            r2 = rnd.nextInt((matrixSize - 1) - 1) + 1;
 
 
-                if (matrix[r1][r2] == 1 && ((matrix[r1][r2 + 1] != 1 && matrix[r1][r2 - 1] != 1 && matrix[r1][r2 + 2] != 1 && matrix[r1][r2 - 2] != 1 && matrix[r1][r2 + 3] != 1 && matrix[r1][r2 - 3] != 1 )
-                        || (matrix[r1 + 1][r2] != 1 && matrix[r1 - 1][r2] != 1 && matrix[r1 + 2][r2] != 1 && matrix[r1 - 2][r2] != 1 && matrix[r1 + 3][r2] != 1 && matrix[r1 - 3][r2] != 1 ))) {
-                    matrix[r1][r2] = 0;
-                }
-                tries++;
-
-                if(tries > 100)
-                    break;
-
+            if (matrix[r1][r2] == 1 && ((matrix[r1][r2 + 1] != 1 && matrix[r1][r2 - 1] != 1 && matrix[r1][r2 + 2] != 1 && matrix[r1][r2 - 2] != 1 && matrix[r1][r2 + 3] != 1 && matrix[r1][r2 - 3] != 1)
+                    || (matrix[r1 + 1][r2] != 1 && matrix[r1 - 1][r2] != 1 && matrix[r1 + 2][r2] != 1 && matrix[r1 - 2][r2] != 1 && matrix[r1 + 3][r2] != 1 && matrix[r1 - 3][r2] != 1))) {
+                matrix[r1][r2] = 0;
             }
+            tries++;
 
-            for (int i = 1; i < matrixSize - 1; i++) {
-                for (int j = 1; j < matrixSize - 1; j++) {
-                    if (matrix[i][j] == 1 &&
-                            matrix[i + 1][j] == 0 &&
-                            matrix[i - 1][j] == 0 &&
-                            matrix[i][j + 1] == 0 &&
-                            matrix[i][j - 1] == 0) {
-                        matrix[i][j] = 1;
-                        matrix[i-1][j] = 1;
-                        matrix[i-2][j] = 1;
+            if (tries > 100)
+                break;
+        }
 
-                    }
-
+        for (int i = 1; i < matrixSize - 1; i++) {
+            for (int j = 1; j < matrixSize - 1; j++) {
+                if (matrix[i][j] == 1 &&
+                        matrix[i + 1][j] == 0 &&
+                        matrix[i - 1][j] == 0 &&
+                        matrix[i][j + 1] == 0 &&
+                        matrix[i][j - 1] == 0) {
+                    matrix[i][j] = 1;
+                    matrix[i - 1][j] = 1;
+                    matrix[i - 2][j] = 1;
+                }
             }
         }
     }
 
-
-    private enum EXPLORATION {
+    private enum Exploration {
         N(1, 0, -1), S(2, 0, 1), E(4, 1, 0), W(8, -1, 0);
 
         static {
@@ -160,9 +154,9 @@ public class MazeGenerator {
         private final int bit;
         private final int dx;
         private final int dy;
-        private EXPLORATION opposite;
+        private Exploration opposite;
 
-        EXPLORATION(int bit, int dx, int dy) {
+        Exploration(int bit, int dx, int dy) {
             this.bit = bit;
             this.dx = dx;
             this.dy = dy;

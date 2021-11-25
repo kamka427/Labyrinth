@@ -11,7 +11,18 @@ import java.awt.event.KeyEvent;
 
 public class MainWindow extends JFrame {
     private final Board board;
-    private Timer timer;
+    private final Timer stepTimer;
+    private final Timer elapsedTimer;
+    private int sec;
+    JLabel completedCount;
+    JLabel elapsedTime;
+    JMenuBar menuBar;
+    JMenu menuGame;
+    JMenu menuSettings;
+    JMenu tableSizeMenu;
+    JMenu difficultyMenu;
+    JMenu scaling;
+    JMenu menuTest;
     private Game game;
 
     public MainWindow() {
@@ -19,148 +30,150 @@ public class MainWindow extends JFrame {
         setTitle("Labirintus");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-
         JPanel statusPanel = new JPanel();
-        JLabel completedCount = new JLabel();
+
+        completedCount = new JLabel();
         completedCount.setText(game.getCompletedCount());
+        elapsedTime = new JLabel();
+        elapsedTime.setText("Eltelt idő: 0");
         statusPanel.add(completedCount);
+        statusPanel.add(elapsedTime);
+
         add(statusPanel, BorderLayout.NORTH);
 
         add(board = new Board(game), BorderLayout.CENTER);
-        timer = createTimer(100);
+        stepTimer = createTimer();
 
-
-        JMenuBar menuBar = new JMenuBar();
+        menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu menuGame = new JMenu("Játék");
+
+        menuGame = new JMenu("Játék");
         menuBar.add(menuGame);
         JMenuItem newGame = new JMenuItem("Új Játék");
-        newGame.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            game = new Game(game.getGenerationSize());
-            setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
-            board.newBoard(game);
-            completedCount.setText(game.getCompletedCount());
-            timer.start();
-            pack();
-
-        });
+        newGame.addActionListener((ActionEvent e) -> startNew(completedCount));
         menuGame.add(newGame);
         JMenuItem exit = new JMenuItem("Kilépés");
         exit.addActionListener((ActionEvent e) -> System.exit(0));
         menuGame.add(exit);
 
-        JMenuItem dark = new JMenuItem("Sötétség");
-        dark.addActionListener((ActionEvent e) -> board.toggleDark());
-        menuGame.add(dark);
 
-        JMenu tableSizeMenu = new JMenu("Pályaméret");
-        JMenuItem small = new JMenuItem("Kicsi (13x13)");
-        small.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            game = new Game(6);
-            board.newBoard(game);
-            setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
-            completedCount.setText(game.getCompletedCount());
-            timer.start();
-            pack();
+        menuSettings = new JMenu("Beállítások");
+        tableSizeMenu = new JMenu("Pályaméret");
 
+        createMapSize("Kicsi (13x13)", 6);
+        createMapSize("Közepes (17x17)", 8);
+        createMapSize("Nagy (21x21)", 10);
 
-        });
-
-        tableSizeMenu.add(small);
-        JMenuItem medium = new JMenuItem("Közepes (17x17)");
-        medium.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            game = new Game(8);
-            board.newBoard(game);
-            setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
-            completedCount.setText(game.getCompletedCount());
-            timer.start();
-            pack();
-
-
-        });
-        tableSizeMenu.add(medium);
-        JMenuItem large = new JMenuItem("Nagy (21x21)");
-        large.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            game = new Game(10);
-
-            board.newBoard(game);
-            setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
-            completedCount.setText(game.getCompletedCount());
-            timer.start();
-            pack();
-
-        });
-        tableSizeMenu.add(large);
         JMenuItem randomized = new JMenuItem("Változó");
         randomized.addActionListener((ActionEvent e) -> {
-            timer.stop();
+            stepTimer.stop();
             game = new Game();
             board.newBoard(game);
-            setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
             completedCount.setText(game.getCompletedCount());
-            timer.start();
-            pack();
+            stepTimer.start();
+            resize();
         });
         tableSizeMenu.add(randomized);
+        menuSettings.add(tableSizeMenu);
 
+
+        difficultyMenu = new JMenu("Nehézség");
+
+        createDifficulty("Könnyű", 500);
+        createDifficulty("Közepes", 100);
+        createDifficulty("Nehéz", 10);
+        createDifficulty("Lehetetlen", 1);
+        menuSettings.add(difficultyMenu);
+
+
+        scaling = new JMenu("Nagyítás");
+        createScaling("Kicsi", 25);
+        createScaling("Közepes", 42);
+        createScaling("Nagy", 50);
+        menuSettings.add(scaling);
+
+        menuBar.add(menuSettings);
+
+
+        menuTest = new JMenu("Tesztelés");
+
+        JMenuItem dark = new JMenuItem("Sötétség");
+        dark.addActionListener((ActionEvent e) -> board.toggleDark());
+        menuTest.add(dark);
+        Timer timerLoad = new Timer(1, evt -> {
+            game = new Game(game.getGenerationSize());
+            board.newBoard(game);
+            completedCount.setText(game.getCompletedCount());
+            stepTimer.start();
+            resize();
+        });
         JMenuItem loadTest = new JMenuItem("LoadTest");
         loadTest.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            Timer timerLoad = new Timer(1, evt -> {
-                game = new Game(game.getGenerationSize());
-                board.newBoard(game);
-                setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
-
-                completedCount.setText(game.getCompletedCount());
-                timer.start();
-                pack();
-            });
-            timerLoad.start();
+            if (timerLoad.isRunning()) {
+                timerLoad.stop();
+                stepTimer.start();
+            } else {
+                stepTimer.stop();
+                timerLoad.start();
+            }
         });
-        menuGame.add(loadTest);
-        menuBar.add(tableSizeMenu);
+        menuTest.add(loadTest);
+        menuBar.add(menuTest);
 
-        JMenu difficultyMenu = new JMenu("Nehézség");
-        JMenuItem easyDif = new JMenuItem("Könnyű");
-        easyDif.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            timer = createTimer(1000);
-            timer.start();
+        Controls(completedCount);
+
+        stepTimer.start();
+        elapsedTimer = new Timer(1000,evt ->{
+            elapsedTime.setText("Eltelt idő: "+ String.valueOf(sec+=1));
         });
-        difficultyMenu.add(easyDif);
+        elapsedTimer.start();
+        setResizable(false);
+        resize();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
 
-        JMenuItem mediumDif = new JMenuItem("Közepes");
-        mediumDif.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            timer = createTimer(100);
-            timer.start();
+    public static void main(String[] args) {
+        new MainWindow();
+    }
+
+    private void createMapSize(String text, int size) {
+        JMenuItem mapSize = new JMenuItem(text);
+        mapSize.addActionListener((ActionEvent e) -> {
+            stepTimer.stop();
+            game = new Game(size);
+            board.newBoard(game);
+            completedCount.setText(game.getCompletedCount());
+            stepTimer.start();
+            resetElapsedTime();
+            resize();
         });
-        difficultyMenu.add(mediumDif);
+        tableSizeMenu.add(mapSize);
+    }
 
-        JMenuItem hardDif = new JMenuItem("Nehéz");
-        hardDif.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            timer = createTimer(10);
-            timer.start();
+    private void createDifficulty(String text, int time) {
+        JMenuItem difficulty = new JMenuItem(text);
+        difficulty.addActionListener((ActionEvent e) -> {
+            stepTimer.stop();
+            startNew(completedCount);
+            stepTimer.setDelay(time);
+            stepTimer.start();
+            resetElapsedTime();
         });
-        difficultyMenu.add(hardDif);
+        difficultyMenu.add(difficulty);
+    }
 
-        JMenuItem insaneDif = new JMenuItem("Lehetetlen");
-        insaneDif.addActionListener((ActionEvent e) -> {
-            timer.stop();
-            timer = createTimer(10);
-            timer.start();
+    private void createScaling(String text, int size) {
+        JMenuItem scalingVal = new JMenuItem(text);
+        scalingVal.addActionListener((ActionEvent e) -> {
+            board.setScale(size);
+            resize();
         });
-        difficultyMenu.add(insaneDif);
+        scaling.add(scalingVal);
+    }
 
-        menuBar.add(difficultyMenu);
-
-
+    private void Controls(JLabel completedCount) {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent ke) {
@@ -173,38 +186,50 @@ public class MainWindow extends JFrame {
                     case KeyEvent.VK_DOWN -> Direction.DOWN;
                     default -> null;
                 };
+
                 if (!game.isEnded() && d != null)
                     game.movePlayer(d);
 
                 if (game.isCompleted()) {
-                    timer.stop();
+                    stepTimer.stop();
                     game.newLevel();
                     board.newBoard(game);
                     game.addToCompletedCount();
                     completedCount.setText(game.getCompletedCount());
-                    setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
-                    pack();
-                    timer.start();
+                    resize();
+                    stepTimer.start();
                 }
 
                 board.revalidate();
                 board.repaint();
-
-
             }
         });
-
-        timer.start();
-        setResizable(false);
-        setPreferredSize(new Dimension(game.getLevel().getMapSize() * 50 + 100 + 15, game.getLevel().getMapSize() * 50 + 185));
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
     }
 
-    private Timer createTimer(int speed) {
+    private void resize() {
+        board.setBoardSize();
+        pack();
+    }
+
+    private void startNew(JLabel completedCount) {
+        stepTimer.stop();
+        game = new Game(game.getGenerationSize());
+        board.newBoard(game);
+        completedCount.setText(game.getCompletedCount());
+        stepTimer.start();
+        resetElapsedTime();
+        resize();
+    }
+
+    private void resetElapsedTime() {
+        elapsedTime.setText("Eltelt idő: 0");
+        sec = 0;
+        elapsedTimer.restart();
+    }
+
+    private Timer createTimer() {
         final Timer timer;
-        timer = new Timer(speed, evt -> {
+        timer = new Timer(100, evt -> {
             game.moveDragon();
             repaint();
             if (game.isEnded()) {
@@ -214,11 +239,5 @@ public class MainWindow extends JFrame {
             }
         });
         return timer;
-    }
-
-    public static void main(String[] args) {
-
-        new MainWindow();
-
     }
 }
