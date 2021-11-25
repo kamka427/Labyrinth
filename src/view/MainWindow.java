@@ -14,6 +14,7 @@ public class MainWindow extends JFrame {
     private final Timer stepTimer;
     private final Timer elapsedTimer;
     private int sec;
+    String playerName;
     JLabel completedCount;
     JLabel elapsedTime;
     JMenuBar menuBar;
@@ -30,6 +31,8 @@ public class MainWindow extends JFrame {
         setTitle("Labirintus");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        playerName = JOptionPane.showInputDialog("Kérlek add meg a nevedet!","");
+        game.setPlayerName(playerName);
         JPanel statusPanel = new JPanel();
 
         completedCount = new JLabel();
@@ -47,7 +50,6 @@ public class MainWindow extends JFrame {
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-
         menuGame = new JMenu("Játék");
         menuBar.add(menuGame);
         JMenuItem newGame = new JMenuItem("Új Játék");
@@ -56,7 +58,6 @@ public class MainWindow extends JFrame {
         JMenuItem exit = new JMenuItem("Kilépés");
         exit.addActionListener((ActionEvent e) -> System.exit(0));
         menuGame.add(exit);
-
 
         menuSettings = new JMenu("Beállítások");
         tableSizeMenu = new JMenu("Pályaméret");
@@ -77,7 +78,6 @@ public class MainWindow extends JFrame {
         tableSizeMenu.add(randomized);
         menuSettings.add(tableSizeMenu);
 
-
         difficultyMenu = new JMenu("Nehézség");
 
         createDifficulty("Könnyű", 500);
@@ -86,7 +86,6 @@ public class MainWindow extends JFrame {
         createDifficulty("Lehetetlen", 1);
         menuSettings.add(difficultyMenu);
 
-
         scaling = new JMenu("Nagyítás");
         createScaling("Kicsi", 25);
         createScaling("Közepes", 42);
@@ -94,7 +93,6 @@ public class MainWindow extends JFrame {
         menuSettings.add(scaling);
 
         menuBar.add(menuSettings);
-
 
         menuTest = new JMenu("Tesztelés");
 
@@ -191,6 +189,7 @@ public class MainWindow extends JFrame {
                     game.movePlayer(d);
 
                 if (game.isCompleted()) {
+                    game.calculateScore();
                     stepTimer.stop();
                     game.newLevel();
                     board.newBoard(game);

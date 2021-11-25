@@ -1,5 +1,7 @@
 package model;
 
+import persistence.Database;
+
 import java.util.Random;
 
 public class Game {
@@ -10,6 +12,10 @@ public class Game {
     private int mapSize;
     private int generationSize;
     private boolean randomized;
+    private final Database database;
+    private String playerName;
+
+
 
     public Game(int Size) {
         generationSize = Size;
@@ -19,6 +25,12 @@ public class Game {
         dragon = new Dragon(generateStart());
         completedCount = 0;
         randomized = false;
+        database = new Database();
+
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 
     public Game() {
@@ -30,6 +42,7 @@ public class Game {
         dragon = new Dragon(generateStart());
         completedCount = 0;
         randomized = true;
+        database = new Database();
     }
 
     public String getCompletedCount() {
@@ -94,7 +107,6 @@ public class Game {
         return generationSize;
     }
 
-
     public boolean isFree(Position p) {
         return level.getMap(p.x, p.y) == 0;
     }
@@ -115,5 +127,16 @@ public class Game {
         } else {
             dragon.newDirection(isFree(curr.moveNext(Direction.UP)), isFree(curr.moveNext(Direction.DOWN)), isFree(curr.moveNext(Direction.LEFT)), isFree(curr.moveNext(Direction.RIGHT)));
         }
+        if(isEnded())
+        {
+            database.storeHighScore(playerName,calculateScore());
+        }
+    }
+
+    public int calculateScore(){
+        if(randomized)
+            return completedCount * 4 ;
+        else return  completedCount * mapSize /4;
+
     }
 }

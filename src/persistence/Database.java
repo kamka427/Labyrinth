@@ -1,4 +1,3 @@
-/*
 package persistence;
 
 import java.sql.Connection;
@@ -9,16 +8,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Database {
-    private final String tableName = "highscore";
+    private final String tableName = "scores";
     private final Connection conn;
     private final HashMap<String, Integer> highScores;
 
-    public Database(){
+    public Database() {
         Connection c = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            c = DriverManager.getConnection("jdbc:mysql://localhost/labyrinth?"
-                    + "serverTimezone=UTC&user=student&password=asd123");
+
+            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/labyrinth", "student", "asd123");
+            System.out.println("Siker");
         } catch (Exception ex) {
             System.out.println("No connection");
         }
@@ -27,58 +27,62 @@ public class Database {
         loadHighScores();
     }
 
-    public boolean storeHighScore(String id, int newScore){
-        return mergeHighScores(id, newScore, newScore > 0);
+    public boolean storeHighScore(String name, int newScore) {
+        return mergeHighScores(name, newScore, newScore > 0);
     }
 
-    public ArrayList<HighScore> getHighScores(){
+    public ArrayList<HighScore> getHighScores() {
         ArrayList<HighScore> scores = new ArrayList<>();
-        for (String id : highScores.keySet()){
-            HighScore h = new HighScore(id, highScores.get(id));
+        for (String name : highScores.keySet()) {
+            HighScore h = new HighScore(name, highScores.get(name));
             scores.add(h);
             System.out.println(h);
         }
         return scores;
     }
 
-    private void loadHighScores(){
+    private void loadHighScores() {
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
-            while (rs.next()){
-                String diff = rs.getString("Difficulty");
-                int level = rs.getInt("GameLevel");
-                int steps = rs.getInt("Steps");
-                String id = new GameID(diff, level);
-                mergeHighScores(id, steps, false);
+            while (rs.next()) {
+
+                String name = rs.getString("name");
+                int completed = rs.getInt("score");
+
+                mergeHighScores(name, completed, false);
             }
-        } catch (Exception e){ System.out.println("loadHighScores error: " + e.getMessage());}
+        } catch (Exception e) {
+            System.out.println("loadHighScores error: " + e.getMessage());
+        }
     }
 
-    private boolean mergeHighScores(String id, int score, boolean store){
-        System.out.println("Merge: " + id.difficulty + "-" + id.level + ":" + score + "(" + store + ")");
+    private boolean mergeHighScores(String name, int score, boolean store) {
+        System.out.println("Merge: " + name + "-" + ":" + score + "(" + store + ")");
+
         boolean doUpdate = true;
-        if (highScores.containsKey(id)){
-            int oldScore = highScores.get(id);
+        if (highScores.containsKey(name)) {
+            int oldScore = highScores.get(name);
             doUpdate = ((score < oldScore && score != 0) || oldScore == 0);
         }
-        if (doUpdate){
-            highScores.remove(id);
-            highScores.put(id, score);
-            if (store) return storeToDatabase(id, score) > 0;
-            return true;
+
+        if (doUpdate) {
+            highScores.remove(name);
+            highScores.put(name, score);
+            if (store) return storeToDatabase(name, score) > 0;
         }
-        return false;
+        return true;
+
     }
 
-    private int storeToDatabase(GameID id, int score){
-        try (Statement stmt = conn.createStatement()){
+    public int storeToDatabase(String name, int score) {
+        try (Statement stmt = conn.createStatement()) {
             String s = "INSERT INTO " + tableName +
-                    " (Difficulty, GameLevel, Steps) " +
-                    "VALUES('" + id.difficulty + "'," + id.level +
-                    "," + score +
-                    ") ON DUPLICATE KEY UPDATE Steps=" + score;
+                    " (name, score) " +
+                    "VALUES('" + name + "',"
+                    + score +
+                    ")";
             return stmt.executeUpdate(s);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("storeToDatabase error");
         }
         return 0;
@@ -86,4 +90,4 @@ public class Database {
 
 }
 
-*/
+
