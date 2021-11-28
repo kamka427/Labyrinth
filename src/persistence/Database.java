@@ -1,16 +1,13 @@
 package persistence;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Database {
-    private final String tableName = "scores";
-    private final Connection conn;
-    private final HashMap<String, Integer> highScores;
+    private final Connection connection;
+    PreparedStatement insertStatement;
+    PreparedStatement deleteStatement;
+    int maxScores;
 
     public Database() {
         Connection c = null;
@@ -18,74 +15,71 @@ public class Database {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             c = DriverManager.getConnection("jdbc:mysql://localhost:3306/labyrinth", "student", "asd123");
-            System.out.println("Siker");
         } catch (Exception ex) {
             System.out.println("No connection");
         }
-        this.conn = c;
-        highScores = new HashMap<>();
-        loadHighScores();
-    }
-
-    public boolean storeHighScore(String name, int newScore) {
-        return mergeHighScores(name, newScore, newScore > 0);
-    }
-
-    public ArrayList<HighScore> getHighScores() {
-        ArrayList<HighScore> scores = new ArrayList<>();
-        for (String name : highScores.keySet()) {
-            HighScore h = new HighScore(name, highScores.get(name));
-            scores.add(h);
-            System.out.println(h);
-        }
-        return scores;
-    }
-
-    private void loadHighScores() {
-        try (Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
-            while (rs.next()) {
-
-                String name = rs.getString("name");
-                int completed = rs.getInt("score");
-
-                mergeHighScores(name, completed, false);
+        this.connection = c;
+        String insertQuery = "INSERT INTO SCORES (NAME, SCORE) VALUES (?, ?) ON DUPLICATE KEY UPDATE SCORE=?";
+        String deleteQuery = "DELETE FROM SCORES WHERE SCORE=?";
+        try {
+            if (connection != null) {
+                insertStatement = connection.prepareStatement(insertQuery);
+                deleteStatement = connection.prepareStatement(deleteQuery);
             }
-        } catch (Exception e) {
-            System.out.println("loadHighScores error: " + e.getMessage());
-        }
-    }
-
-    private boolean mergeHighScores(String name, int score, boolean store) {
-        System.out.println("Merge: " + name + "-" + ":" + score + "(" + store + ")");
-
-        boolean doUpdate = true;
-        if (highScores.containsKey(name)) {
-            int oldScore = highScores.get(name);
-            doUpdate = ((score < oldScore && score != 0) || oldScore == 0);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        if (doUpdate) {
-            highScores.remove(name);
-            highScores.put(name, score);
-            if (store) return storeToDatabase(name, score) > 0;
+        try {
+            System.out.println(getHighScores());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return true;
+        maxScores = 10;
 
     }
 
-    public int storeToDatabase(String name, int score) {
-        try (Statement stmt = conn.createStatement()) {
-            String s = "INSERT INTO " + tableName +
-                    " (name, score) " +
-                    "VALUES('" + name + "',"
-                    + score +
-                    ")";
-            return stmt.executeUpdate(s);
-        } catch (Exception e) {
-            System.out.println("storeToDatabase error");
+    public ArrayList<HighScore> getHighScores() throws SQLException {
+        String query = "SELECT * FROM SCORES";
+        ArrayList<HighScore> highScores = new ArrayList<>();
+        Statement stmt = connection.createStatement();
+        ResultSet results = stmt.executeQuery(query);
+        while (results.next()) {
+            String name = results.getString("NAME");
+            int score = results.getInt("SCORE");
+            highScores.add(new HighScore(name, score));
         }
-        return 0;
+        sortHighScores(highScores);
+        return highScores;
+    }
+
+    public void putHighScore(String name, int score) throws SQLException {
+        ArrayList<HighScore> highScores = getHighScores();
+        if (highScores.size() < maxScores) {
+            insertScore(name, score);
+        } else {
+            int leastScore = highScores.get(highScores.size() - 1).completed;
+            if (leastScore < score) {
+                deleteScores(leastScore);
+                insertScore(name, score);
+            }
+        }
+    }
+
+    private void sortHighScores(ArrayList<HighScore> highScores) {
+        highScores.sort((a, b) -> b.completed - a.completed);
+    }
+
+    private void insertScore(String name, int score) throws SQLException {
+        insertStatement.setString(1, name);
+        insertStatement.setInt(2, score);
+        insertStatement.setInt(3, score);
+        insertStatement.executeUpdate();
+    }
+
+    private void deleteScores(int score) throws SQLException {
+        deleteStatement.setInt(1, score);
+        deleteStatement.executeUpdate();
     }
 
 }

@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.sql.SQLException;
 
 public class MainWindow extends JFrame {
     private final Board board;
@@ -27,12 +28,12 @@ public class MainWindow extends JFrame {
     private Game game;
 
     public MainWindow() {
-        game = new Game(8);
+
         setTitle("Labirintus");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         playerName = JOptionPane.showInputDialog("Kérlek add meg a nevedet!","");
-        game.setPlayerName(playerName);
+        game = new Game(8,playerName);
         JPanel statusPanel = new JPanel();
 
         completedCount = new JLabel();
@@ -69,7 +70,7 @@ public class MainWindow extends JFrame {
         JMenuItem randomized = new JMenuItem("Változó");
         randomized.addActionListener((ActionEvent e) -> {
             stepTimer.stop();
-            game = new Game();
+            game = new Game(playerName);
             board.newBoard(game);
             completedCount.setText(game.getCompletedCount());
             stepTimer.start();
@@ -88,7 +89,7 @@ public class MainWindow extends JFrame {
 
         scaling = new JMenu("Nagyítás");
         createScaling("Kicsi", 25);
-        createScaling("Közepes", 42);
+        createScaling("Közepes", 40);
         createScaling("Nagy", 50);
         menuSettings.add(scaling);
 
@@ -100,7 +101,7 @@ public class MainWindow extends JFrame {
         dark.addActionListener((ActionEvent e) -> board.toggleDark());
         menuTest.add(dark);
         Timer timerLoad = new Timer(1, evt -> {
-            game = new Game(game.getGenerationSize());
+            game = new Game(game.getGenerationSize(),playerName);
             board.newBoard(game);
             completedCount.setText(game.getCompletedCount());
             stepTimer.start();
@@ -119,12 +120,24 @@ public class MainWindow extends JFrame {
         menuTest.add(loadTest);
         menuBar.add(menuTest);
 
+        JMenuItem menuHighScores = new JMenuItem(new AbstractAction("Dicsőség tábla") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    new HighScoreWindow(game.getHighScores(), MainWindow.this);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        menuGame.add(menuHighScores);
+
         Controls(completedCount);
 
         stepTimer.start();
-        elapsedTimer = new Timer(1000,evt ->{
-            elapsedTime.setText("Eltelt idő: "+ String.valueOf(sec+=1));
-        });
+        elapsedTimer = new Timer(1000,evt -> elapsedTime.setText("Eltelt idő: "+ (sec += 1)));
         elapsedTimer.start();
         setResizable(false);
         resize();
@@ -140,7 +153,7 @@ public class MainWindow extends JFrame {
         JMenuItem mapSize = new JMenuItem(text);
         mapSize.addActionListener((ActionEvent e) -> {
             stepTimer.stop();
-            game = new Game(size);
+            game = new Game(size,playerName);
             board.newBoard(game);
             completedCount.setText(game.getCompletedCount());
             stepTimer.start();
@@ -177,30 +190,40 @@ public class MainWindow extends JFrame {
             public void keyPressed(KeyEvent ke) {
                 super.keyPressed(ke);
                 int kk = ke.getKeyCode();
-                Direction d = switch (kk) {
-                    case KeyEvent.VK_LEFT -> Direction.LEFT;
-                    case KeyEvent.VK_RIGHT -> Direction.RIGHT;
-                    case KeyEvent.VK_UP -> Direction.UP;
-                    case KeyEvent.VK_DOWN -> Direction.DOWN;
-                    default -> null;
-                };
+                if (!game.isEnded() && board.canMove) {
+                    Direction d = switch (kk) {
+                        case KeyEvent.VK_LEFT -> Direction.LEFT;
+                        case KeyEvent.VK_RIGHT -> Direction.RIGHT;
+                        case KeyEvent.VK_UP -> Direction.UP;
+                        case KeyEvent.VK_DOWN -> Direction.DOWN;
+                        default -> null;
+                    };
 
-                if (!game.isEnded() && d != null)
-                    game.movePlayer(d);
 
-                if (game.isCompleted()) {
-                    game.calculateScore();
-                    stepTimer.stop();
-                    game.newLevel();
-                    board.newBoard(game);
-                    game.addToCompletedCount();
-                    completedCount.setText(game.getCompletedCount());
-                    resize();
-                    stepTimer.start();
+                    if (!game.isEnded() && d != null) {
+                        game.movePlayer(d);
+
+                    }
+
+                    if (game.isEnded()) {
+                        String msg = "Meghaltál!";
+                        JOptionPane.showMessageDialog(MainWindow.this, msg, "Játék vége", JOptionPane.INFORMATION_MESSAGE);
+                        stepTimer.stop();
+                    }
+                    if (game.isCompleted()) {
+                        game.calculateScore();
+                        stepTimer.stop();
+                        game.newLevel();
+                        board.newBoard(game);
+                        game.addToCompletedCount();
+                        completedCount.setText(game.getCompletedCount());
+                        resize();
+                        stepTimer.start();
+                    }
+
+                    /*board.revalidate();
+                    board.repaint();*/
                 }
-
-                board.revalidate();
-                board.repaint();
             }
         });
     }
@@ -212,12 +235,16 @@ public class MainWindow extends JFrame {
 
     private void startNew(JLabel completedCount) {
         stepTimer.stop();
-        game = new Game(game.getGenerationSize());
+        game = new Game(game.getGenerationSize(),playerName);
         board.newBoard(game);
         completedCount.setText(game.getCompletedCount());
         stepTimer.start();
         resetElapsedTime();
         resize();
+    }
+
+    private void animateDragon() {
+        board.dragonAnimated = stepTimer.getDelay() >= 100;
     }
 
     private void resetElapsedTime() {
@@ -229,8 +256,9 @@ public class MainWindow extends JFrame {
     private Timer createTimer() {
         final Timer timer;
         timer = new Timer(100, evt -> {
+            animateDragon();
             game.moveDragon();
-            repaint();
+            //repaint();
             if (game.isEnded()) {
                 String msg = "Meghaltál!";
                 JOptionPane.showMessageDialog(MainWindow.this, msg, "Játék vége", JOptionPane.INFORMATION_MESSAGE);

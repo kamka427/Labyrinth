@@ -1,7 +1,10 @@
 package model;
 
 import persistence.Database;
+import persistence.HighScore;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Game {
@@ -17,7 +20,7 @@ public class Game {
 
 
 
-    public Game(int Size) {
+    public Game(int Size,String playerName) {
         generationSize = Size;
         this.mapSize = Size * 2 + 1;
         level = new Level(Size);
@@ -25,6 +28,7 @@ public class Game {
         dragon = new Dragon(generateStart());
         completedCount = 0;
         randomized = false;
+        this.playerName = playerName;
         database = new Database();
 
     }
@@ -33,7 +37,7 @@ public class Game {
         this.playerName = playerName;
     }
 
-    public Game() {
+    public Game(String playerName) {
         Random rnd = new Random();
         generationSize = rnd.nextInt(10 - 6) + 6;
         this.mapSize = (generationSize * 2 + 1);
@@ -42,6 +46,7 @@ public class Game {
         dragon = new Dragon(generateStart());
         completedCount = 0;
         randomized = true;
+        this.playerName = playerName;
         database = new Database();
     }
 
@@ -79,6 +84,11 @@ public class Game {
             rndY = rnd.nextInt(generationSize * 2 - 1);
         }
         return new Position(rndX, rndY);
+    }
+
+
+    public ArrayList<HighScore> getHighScores() throws SQLException {
+        return database.getHighScores();
     }
 
     public boolean isEnded() {
@@ -129,7 +139,11 @@ public class Game {
         }
         if(isEnded())
         {
-            database.storeHighScore(playerName,calculateScore());
+            try {
+                database.putHighScore(playerName,calculateScore());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

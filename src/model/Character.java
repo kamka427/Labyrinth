@@ -9,6 +9,7 @@ public class Character {
     public Character(Position startLocation) {
         this.location = startLocation;
         this.startLoc = startLocation;
+
     }
 
     public Position getStartLoc() {
