@@ -149,8 +149,8 @@ public class Game {
 
     public int calculateScore(){
         if(randomized)
-            return completedCount * 4 ;
-        else return  completedCount * mapSize /4;
+            return completedCount ;
+        else return  completedCount;
 
     }
 }

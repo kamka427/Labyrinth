@@ -13,14 +13,13 @@ public class Database {
         Connection c = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-
             c = DriverManager.getConnection("jdbc:mysql://localhost:3306/labyrinth", "student", "asd123");
         } catch (Exception ex) {
             System.out.println("No connection");
         }
         this.connection = c;
         String insertQuery = "INSERT INTO SCORES (NAME, SCORE) VALUES (?, ?) ON DUPLICATE KEY UPDATE SCORE=?";
-        String deleteQuery = "DELETE FROM SCORES WHERE SCORE=?";
+        String deleteQuery = "DELETE FROM SCORES WHERE SCORE=? LIMIT 1";
         try {
             if (connection != null) {
                 insertStatement = connection.prepareStatement(insertQuery);
@@ -71,10 +70,19 @@ public class Database {
     }
 
     private void insertScore(String name, int score) throws SQLException {
-        insertStatement.setString(1, name);
-        insertStatement.setInt(2, score);
-        insertStatement.setInt(3, score);
-        insertStatement.executeUpdate();
+        boolean doUpdate = true;
+
+
+        for (HighScore val: getHighScores()) {
+            if(val.id.equals(name))
+                doUpdate = (score > val.completed);
+        }
+        if (doUpdate) {
+            insertStatement.setString(1, name);
+            insertStatement.setInt(2, score);
+            insertStatement.setInt(3, score);
+            insertStatement.executeUpdate();
+        }
     }
 
     private void deleteScores(int score) throws SQLException {

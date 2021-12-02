@@ -56,6 +56,9 @@ public class MainWindow extends JFrame {
         JMenuItem newGame = new JMenuItem("Új Játék");
         newGame.addActionListener((ActionEvent e) -> startNew(completedCount));
         menuGame.add(newGame);
+        JMenuItem newPlayer = new JMenuItem("Új Játékos");
+        newPlayer.addActionListener((ActionEvent e) -> game.setPlayerName(JOptionPane.showInputDialog("Kérlek add meg a nevedet!","")));
+        menuGame.add(newPlayer);
         JMenuItem exit = new JMenuItem("Kilépés");
         exit.addActionListener((ActionEvent e) -> System.exit(0));
         menuGame.add(exit);
@@ -205,11 +208,11 @@ public class MainWindow extends JFrame {
 
                     }
 
-                    if (game.isEnded()) {
+                    /*if (game.isEnded()) {
                         String msg = "Meghaltál!";
                         JOptionPane.showMessageDialog(MainWindow.this, msg, "Játék vége", JOptionPane.INFORMATION_MESSAGE);
                         stepTimer.stop();
-                    }
+                    }*/
                     if (game.isCompleted()) {
                         game.calculateScore();
                         stepTimer.stop();
@@ -256,14 +259,18 @@ public class MainWindow extends JFrame {
     private Timer createTimer() {
         final Timer timer;
         timer = new Timer(100, evt -> {
-            animateDragon();
-            game.moveDragon();
-            //repaint();
             if (game.isEnded()) {
+                animateDragon();
+                elapsedTimer.stop();
+                ((Timer) evt.getSource()).stop();
                 String msg = "Meghaltál!";
                 JOptionPane.showMessageDialog(MainWindow.this, msg, "Játék vége", JOptionPane.INFORMATION_MESSAGE);
-                ((Timer) evt.getSource()).stop();
             }
+            else {
+                animateDragon();
+                game.moveDragon();
+            }
+
         });
         return timer;
     }
