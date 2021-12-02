@@ -208,11 +208,6 @@ public class MainWindow extends JFrame {
 
                     }
 
-                    /*if (game.isEnded()) {
-                        String msg = "Meghaltál!";
-                        JOptionPane.showMessageDialog(MainWindow.this, msg, "Játék vége", JOptionPane.INFORMATION_MESSAGE);
-                        stepTimer.stop();
-                    }*/
                     if (game.isCompleted()) {
                         game.calculateScore();
                         stepTimer.stop();
@@ -224,8 +219,6 @@ public class MainWindow extends JFrame {
                         stepTimer.start();
                     }
 
-                    /*board.revalidate();
-                    board.repaint();*/
                 }
             }
         });
@@ -246,10 +239,6 @@ public class MainWindow extends JFrame {
         resize();
     }
 
-    private void animateDragon() {
-        board.dragonAnimated = stepTimer.getDelay() >= 100;
-    }
-
     private void resetElapsedTime() {
         elapsedTime.setText("Eltelt idő: 0");
         sec = 0;
@@ -260,14 +249,12 @@ public class MainWindow extends JFrame {
         final Timer timer;
         timer = new Timer(100, evt -> {
             if (game.isEnded()) {
-                animateDragon();
                 elapsedTimer.stop();
                 ((Timer) evt.getSource()).stop();
                 String msg = "Meghaltál!";
                 JOptionPane.showMessageDialog(MainWindow.this, msg, "Játék vége", JOptionPane.INFORMATION_MESSAGE);
             }
             else {
-                animateDragon();
                 game.moveDragon();
             }
 

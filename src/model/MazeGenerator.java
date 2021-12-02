@@ -19,68 +19,50 @@ public class MazeGenerator {
         matrix = new int[this.x * 2 + 1][this.y * 2 + 1];
         matrixSize = this.x * 2 + 1;
         generateMaze(0, 0);
-        toMatrix(displayWithMatrix());
+        convertToMatrix(convertToString());
         removeWalls();
     }
-
+    public int[][] getMatrix() {
+        return matrix;
+    }
     private static boolean between(int v, int upper) {
         return (v >= 0) && (v < upper);
     }
 
-    public static void main(String[] args) {
-        int x = args.length >= 1 ? (Integer.parseInt(args[0])) : 8;
-        int y = args.length == 2 ? (Integer.parseInt(args[1])) : 8;
-        MazeGenerator maze = new MazeGenerator(x, y);
-        maze.display();
-    }
+    public void printMatrix() {
 
-    public int[][] getMatrix() {
-        return matrix;
-    }
-
-    public void display() {
         for (int i = 0; i < y; i++) {
             for (int j = 0; j < x; j++) {
-                System.out.print((maze[j][i] & 1) == 0 ? "+---" : "+   ");
+                System.out.print((maze[j][i] & 1) == 0 ? "1 1 " : "1 0 ");
             }
-            System.out.println("+");
+            System.out.println("1");
             for (int j = 0; j < x; j++) {
-                System.out.print((maze[j][i] & 8) == 0 ? "|   " : "    ");
+                System.out.print((maze[j][i] & 8) == 0 ? "1 0 " : "0 0 ");
             }
-            System.out.println("|");
+            System.out.println("1");
         }
-        for (int j = 0; j < x; j++) {
-            System.out.print("+---");
-        }
-        System.out.println("+");
+        System.out.print("1 1 ");
+        System.out.println("1");
     }
 
-    public String displayWithMatrix() {
+    public String convertToString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < y; i++) {
             for (int j = 0; j < x; j++) {
-                //   System.out.print((maze[j][i] & 1) == 0 ? "1 1 " : "1 0 ");
                 sb.append((maze[j][i] & 1) == 0 ? "11" : "10");
             }
-            // System.out.println("1");
             sb.append("1");
-
             for (int j = 0; j < x; j++) {
-                //System.out.print((maze[j][i] & 8) == 0 ? "1 0 " : "0 0 ");
                 sb.append((maze[j][i] & 8) == 0 ? "10" : "00");
             }
-            // System.out.println("1");
             sb.append("1");
-
         }
-        //  System.out.print("1 1 ");
         sb.append("11".repeat(Math.max(0, x)));
-        //  System.out.println("1");
         sb.append("1");
         return sb.toString();
     }
 
-    public void toMatrix(String data) {
+    public void convertToMatrix(String data) {
         int k = 0;
         for (int i = 0; i < matrixSize; i++) {
             for (int j = 0; j < matrixSize; j++) {

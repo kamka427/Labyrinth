@@ -5,11 +5,20 @@ import java.util.Objects;
 public class Character {
     private Position location;
     private final Position startLoc;
+    private Position drawLoc;
 
     public Character(Position startLocation) {
         this.location = startLocation;
         this.startLoc = startLocation;
 
+    }
+
+    public Position getDrawLoc() {
+        return drawLoc;
+    }
+
+    public void setDrawLoc(Position drawLoc) {
+        this.drawLoc = drawLoc;
     }
 
     public Position getStartLoc() {
