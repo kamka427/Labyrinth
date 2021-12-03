@@ -2,18 +2,38 @@ package model;
 
 import java.awt.*;
 
+/**
+ * A játékos osztálya
+ */
 public class Player extends Character {
-    Player(Position startLocation){
+    /**
+     * Játékos példánosítása
+     *
+     * @param startLocation kezdőpozíció
+     */
+    Player(Position startLocation) {
         super(startLocation);
     }
 
-    public void drawPlayer(Graphics2D g2d, int scale) {
+    /**
+     * A játékos kirajzolása
+     *
+     * @param g2d   grafika osztály
+     * @param scale nagyítás mértéke
+     */
+    public void draw(Graphics2D g2d, int scale) {
         g2d.setColor(Color.BLUE);
         g2d.drawOval(getDrawLoc().y + 2, getDrawLoc().x + 2, scale - 4, scale - 4);
         g2d.fillOval(getDrawLoc().y + 2, getDrawLoc().x + 2, scale - 4, scale - 4);
     }
 
-    public boolean playerAnimate(Graphics2D g2d, Game game, int scale) {
+    /**
+     * @param g2d   grafika osztály
+     * @param game  játék osztály
+     * @param scale nagyítás mértéke
+     * @return véget ért-e az animáció
+     */
+    public boolean animate(Graphics2D g2d, Game game, int scale) {
         boolean canMove;
         if (getDrawLoc().x == game.getPlayer().getLocation().x * scale && getDrawLoc().y == game.getPlayer().getLocation().y * scale) {
             g2d.setColor(Color.BLUE);
@@ -23,19 +43,19 @@ public class Player extends Character {
         } else {
             canMove = false;
             if (getDrawLoc().x < game.getPlayer().getLocation().x * scale) {
-                drawPlayer(g2d,scale);
+                draw(g2d, scale);
                 getDrawLoc().x += 1;
             }
             if (getDrawLoc().x > game.getPlayer().getLocation().x * scale) {
-                drawPlayer(g2d,scale);
+                draw(g2d, scale);
                 getDrawLoc().x -= 1;
             }
             if (getDrawLoc().y < game.getPlayer().getLocation().y * scale) {
-                drawPlayer(g2d,scale);
+                draw(g2d, scale);
                 getDrawLoc().y += 1;
             }
             if (getDrawLoc().y > game.getPlayer().getLocation().y * scale) {
-                drawPlayer(g2d,scale);
+                draw(g2d, scale);
                 getDrawLoc().y -= 1;
             }
         }

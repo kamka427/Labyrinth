@@ -4,11 +4,26 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Database {
+    /**
+     *
+     */
     private final Connection connection;
+    /**
+     *
+     */
     PreparedStatement insertStatement;
+    /**
+     *
+     */
     PreparedStatement deleteStatement;
-    int maxScores;
+    /**
+     *
+     */
+    private final int maxScores;
 
+    /**
+     *
+     */
     public Database() {
         Connection c = null;
         try {
@@ -38,6 +53,11 @@ public class Database {
 
     }
 
+    /**
+     *
+     * @return
+     * @throws SQLException
+     */
     public ArrayList<HighScore> getHighScores() throws SQLException {
         String query = "SELECT * FROM SCORES";
         ArrayList<HighScore> highScores = new ArrayList<>();
@@ -52,6 +72,12 @@ public class Database {
         return highScores;
     }
 
+    /**
+     *
+     * @param name
+     * @param score
+     * @throws SQLException
+     */
     public void putHighScore(String name, int score) throws SQLException {
         ArrayList<HighScore> highScores = getHighScores();
         if (highScores.size() < maxScores) {
@@ -65,10 +91,20 @@ public class Database {
         }
     }
 
+    /**
+     *
+     * @param highScores
+     */
     private void sortHighScores(ArrayList<HighScore> highScores) {
         highScores.sort((a, b) -> b.completed - a.completed);
     }
 
+    /**
+     *
+     * @param name
+     * @param score
+     * @throws SQLException
+     */
     private void insertScore(String name, int score) throws SQLException {
         boolean doUpdate = true;
 
@@ -85,11 +121,15 @@ public class Database {
         }
     }
 
+    /**
+     *
+     * @param score
+     * @throws SQLException
+     */
     private void deleteScores(int score) throws SQLException {
         deleteStatement.setInt(1, score);
         deleteStatement.executeUpdate();
     }
-
 }
 
 

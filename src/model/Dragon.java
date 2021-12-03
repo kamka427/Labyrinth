@@ -4,22 +4,49 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * A sárkány karakter osztálya
+ */
 public class Dragon extends Character {
+    /**
+     * Jelenlegi irány
+     */
     private Direction currentD;
 
+    /**
+     * A sárkány példányosítása
+     *
+     * @param startLocation kezdőpozíció
+     */
     Dragon(Position startLocation) {
         super(startLocation);
         newDirection();
     }
 
+    /**
+     * Aktuális irány lekérdezése
+     *
+     * @return
+     */
     public Direction getCurrentD() {
         return currentD;
     }
 
+    /**
+     * Új irány beállítása a játék kezdetéhez
+     */
     void newDirection() {
         currentD = Direction.values()[new Random().nextInt(Direction.values().length)];
     }
 
+    /**
+     * Új irány beállítása a játék közben
+     *
+     * @param up    szabad-e felfelé lépni
+     * @param down  szabad-e lefelé lépni
+     * @param left  szabad-e balra lépni
+     * @param right szabad-e jobbra lépni
+     */
     void newDirection(boolean up, boolean down, boolean left, boolean right) {
 
         ArrayList<Direction> available = new ArrayList<>();
@@ -35,14 +62,26 @@ public class Dragon extends Character {
         currentD = available.get(new Random().nextInt(available.size()));
     }
 
-
-    public void drawDragon(Graphics2D g2d, int scale) {
+    /**
+     * A sárkány kirajzolása
+     *
+     * @param g2d   grafika osztály
+     * @param scale nagyítás mértéke
+     */
+    public void draw(Graphics2D g2d, int scale) {
         g2d.setColor(Color.RED);
         g2d.drawOval(getDrawLoc().y + 2, getDrawLoc().x + 2, scale - 4, scale - 4);
         g2d.fillOval(getDrawLoc().y + 2, getDrawLoc().x + 2, scale - 4, scale - 4);
     }
 
-    public void dragonAnimate(Graphics2D g2d, Game game, int scale) {
+    /**
+     * A sárkány animálása
+     *
+     * @param g2d   grafika osztály
+     * @param game  játék osztály
+     * @param scale nagyítás mértéke
+     */
+    public void animate(Graphics2D g2d, Game game, int scale) {
         g2d.setColor(Color.RED);
         if (getDrawLoc().x == game.getDragon().getLocation().x * scale && getDrawLoc().y == game.getDragon().getLocation().y * scale) {
             g2d.drawOval(game.getDragon().getLocation().y * scale + 2, game.getDragon().getLocation().x * scale + 2, scale - 4, scale - 4);
@@ -50,19 +89,19 @@ public class Dragon extends Character {
         } else {
             g2d.setColor(Color.RED);
             if (getDrawLoc().x < game.getDragon().getLocation().x * scale) {
-                drawDragon(g2d, scale);
+                draw(g2d, scale);
                 getDrawLoc().x += 1;
             }
             if (getDrawLoc().x > game.getDragon().getLocation().x * scale) {
-                drawDragon(g2d, scale);
+                draw(g2d, scale);
                 getDrawLoc().x -= 1;
             }
             if (getDrawLoc().y < game.getDragon().getLocation().y * scale) {
-                drawDragon(g2d, scale);
+                draw(g2d, scale);
                 getDrawLoc().y += 1;
             }
             if (getDrawLoc().y > game.getDragon().getLocation().y * scale) {
-                drawDragon(g2d, scale);
+                draw(g2d, scale);
                 getDrawLoc().y -= 1;
             }
         }

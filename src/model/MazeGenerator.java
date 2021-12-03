@@ -4,64 +4,80 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-
+/**
+ * Labirintusgenerátor osztály
+ */
 public class MazeGenerator {
-    private final int x;
-    private final int y;
+    private final int n;
+    private final int m;
     private final int[][] maze;
     private final int matrixSize;
     private final int[][] matrix;
 
-    public MazeGenerator(int x, int y) {
-        this.x = x;
-        this.y = y;
-        maze = new int[this.x][this.y];
-        matrix = new int[this.x * 2 + 1][this.y * 2 + 1];
-        matrixSize = this.x * 2 + 1;
+    /**
+     * A labirintusgenerátor példányosítása
+     *
+     * @param n visszintes méret
+     * @param m függőleges méret
+     */
+    public MazeGenerator(int n, int m) {
+        this.n = n;
+        this.m = m;
+        maze = new int[this.n][this.m];
+        matrix = new int[this.n * 2 + 1][this.m * 2 + 1];
+        matrixSize = this.n * 2 + 1;
         generateMaze(0, 0);
         convertToMatrix(convertToString());
         removeWalls();
     }
+
+    /**
+     * Labirintus szélének lekéredezése
+     *
+     * @param curr jelenlegi érték
+     * @param top  a labirintus tetje
+     * @return nem lépnénk-e ki a labirintusból
+     */
+    private static boolean between(int curr, int top) {
+        return (curr >= 0) && (curr < top);
+    }
+
+    /**
+     * A mátrix lekérdezése
+     *
+     * @ a mátrix
+     */
     public int[][] getMatrix() {
         return matrix;
     }
-    private static boolean between(int v, int upper) {
-        return (v >= 0) && (v < upper);
-    }
 
-    public void printMatrix() {
-
-        for (int i = 0; i < y; i++) {
-            for (int j = 0; j < x; j++) {
-                System.out.print((maze[j][i] & 1) == 0 ? "1 1 " : "1 0 ");
-            }
-            System.out.println("1");
-            for (int j = 0; j < x; j++) {
-                System.out.print((maze[j][i] & 8) == 0 ? "1 0 " : "0 0 ");
-            }
-            System.out.println("1");
-        }
-        System.out.print("1 1 ");
-        System.out.println("1");
-    }
-
+    /**
+     * Bit labirintus normál mátrix-á alakítása
+     *
+     * @return normál mátrix szövegként
+     */
     public String convertToString() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < y; i++) {
-            for (int j = 0; j < x; j++) {
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
                 sb.append((maze[j][i] & 1) == 0 ? "11" : "10");
             }
             sb.append("1");
-            for (int j = 0; j < x; j++) {
+            for (int j = 0; j < n; j++) {
                 sb.append((maze[j][i] & 8) == 0 ? "10" : "00");
             }
             sb.append("1");
         }
-        sb.append("11".repeat(Math.max(0, x)));
+        sb.append("11".repeat(Math.max(0, n)));
         sb.append("1");
         return sb.toString();
     }
 
+    /**
+     * A normál mátrix létrehozása
+     *
+     * @param data mátrix szöveges formában
+     */
     public void convertToMatrix(String data) {
         int k = 0;
         for (int i = 0; i < matrixSize; i++) {
@@ -71,21 +87,30 @@ public class MazeGenerator {
         }
     }
 
-    private void generateMaze(int cx, int cy) {
-        Exploration[] mazedirs = Exploration.values();
-        Collections.shuffle(Arrays.asList(mazedirs));
-        for (Exploration dir : mazedirs) {
-            int nx = cx + dir.dx;
-            int ny = cy + dir.dy;
-            if (between(nx, x) && between(ny, y)
-                    && (maze[nx][ny] == 0)) {
-                maze[cx][cy] = maze[cx][cy] | dir.bit;
-                maze[nx][ny] = maze[nx][ny] | dir.opposite.bit;
-                generateMaze(nx, ny);
+    /**
+     * Rekurzív osztásmódszer implementáció
+     *
+     * @param currx jelenlegi kamra visszintes koordináta
+     * @param curry jelenlegi kamra függőleges koordináta
+     */
+    private void generateMaze(int currx, int curry) {
+        Exploration[] directions = Exploration.values();
+        Collections.shuffle(Arrays.asList(directions));
+        for (Exploration dir : directions) {
+            int newx = currx + dir.x;
+            int newy = curry + dir.y;
+            if (between(newx, n) && between(newy, m)
+                    && (maze[newx][newy] == 0)) {
+                maze[currx][curry] = maze[currx][curry] | dir.bit;
+                maze[newx][newy] = maze[newx][newy] | dir.opposite.bit;
+                generateMaze(newx, newy);
             }
         }
     }
 
+    /**
+     * Falak eltávolítása a labirintusból
+     */
     public void removeWalls() {
 
         Random rnd = new Random();
@@ -93,7 +118,7 @@ public class MazeGenerator {
         int tries = 0;
         int r1;
         int r2;
-        while (true) {
+        while (tries < 100) {
             r1 = rnd.nextInt((matrixSize - 1) - 1) + 1;
             r2 = rnd.nextInt((matrixSize - 1) - 1) + 1;
 
@@ -103,9 +128,6 @@ public class MazeGenerator {
                 matrix[r1][r2] = 0;
             }
             tries++;
-
-            if (tries > 100)
-                break;
         }
 
         for (int i = 1; i < matrixSize - 1; i++) {
@@ -123,6 +145,9 @@ public class MazeGenerator {
         }
     }
 
+    /**
+     * privát enum osztály a labirintus feltérképezéséhez
+     */
     private enum Exploration {
         N(1, 0, -1), S(2, 0, 1), E(4, 1, 0), W(8, -1, 0);
 
@@ -134,15 +159,14 @@ public class MazeGenerator {
         }
 
         private final int bit;
-        private final int dx;
-        private final int dy;
+        private final int x;
+        private final int y;
         private Exploration opposite;
 
-        Exploration(int bit, int dx, int dy) {
+        Exploration(int bit, int x, int y) {
             this.bit = bit;
-            this.dx = dx;
-            this.dy = dy;
+            this.x = x;
+            this.y = y;
         }
     }
-
 }

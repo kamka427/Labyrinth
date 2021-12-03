@@ -7,36 +7,70 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * A játékosztály
+ */
 public class Game {
-    private Player player;
-    private Dragon dragon;
-    private Level level;
-    private int completedCount;
-    private int mapSize;
-    private int generationSize;
-    private boolean randomized;
+    /**
+     * Az adatbázis egy példánya
+     */
     private final Database database;
+    /**
+     * Véletlenszerű méretűek-e a pályák
+     */
+    private final boolean randomized;
+    /**
+     * A játékos egy példánya
+     */
+    private Player player;
+    /**
+     * A sárkány egy példánya
+     */
+    private Dragon dragon;
+    /**
+     * A játékszint egy példánya
+     */
+    private Level level;
+    /**
+     * Teljesített szintek száma
+     */
+    private int completedCount;
+    /**
+     * A szint mérete
+     */
+    private int mapSize;
+    /**
+     * A labirintusgenerátornak átadott mérett bitekhez
+     */
+    private int generationSize;
+    /**
+     * A játékos neve
+     */
     private String playerName;
 
-
-
-    public Game(int Size,String playerName) {
-        generationSize = Size;
-        this.mapSize = Size * 2 + 1;
-        level = new Level(Size);
-        player = new Player(new Position(Size * 2 - 1, 1));
+    /**
+     * A játék példányosítása átadott pályamérettel
+     *
+     * @param size       a pályaméret
+     * @param playerName a játékos neve
+     */
+    public Game(int size, String playerName) {
+        generationSize = size;
+        this.mapSize = size * 2 + 1;
+        level = new Level(size);
+        player = new Player(new Position(size * 2 - 1, 1));
         dragon = new Dragon(generateStart());
         completedCount = 0;
         randomized = false;
         this.playerName = playerName;
         database = new Database();
-
     }
 
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
-
+    /**
+     * A játék példányosítása véletlenszerű pályaméretekkel
+     *
+     * @param playerName a játékos neve
+     */
     public Game(String playerName) {
         Random rnd = new Random();
         generationSize = rnd.nextInt(10 - 6) + 6;
@@ -50,47 +84,99 @@ public class Game {
         database = new Database();
     }
 
+    /**
+     * A játékos nevének átállítása
+     *
+     * @param playerName a játékos új neve
+     */
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    /**
+     * A teljesített pályák számának lekérdezése
+     *
+     * @return a teljesített pályák száma
+     */
     public String getCompletedCount() {
         return "Teljesített pályák száma: " + completedCount;
     }
 
+    /**
+     * A játékos lekérdezése
+     *
+     * @return a játékos
+     */
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * A sárkány lekérdezése
+     *
+     * @return a sárkány
+     */
     public Dragon getDragon() {
         return dragon;
     }
 
+    /**
+     * A pálya lekérdezése
+     *
+     * @return a pálya
+     */
     public Level getLevel() {
         return level;
     }
 
+    /**
+     * A teljesített pályák számának növelése
+     */
     public void addToCompletedCount() {
         this.completedCount++;
     }
 
+    /**
+     * A pályméret lekérdezése
+     *
+     * @return a pályaméret
+     */
     public int getMapSize() {
         return mapSize;
     }
 
+    /**
+     * Kezdőpozíció generálása a sárkánynak
+     *
+     * @return a kezdőpozíció
+     */
     Position generateStart() {
         Random rnd = new Random();
-        int rndX = rnd.nextInt(generationSize/2 * 2 - 1);
+        int rndX = rnd.nextInt(generationSize / 2 * 2 - 1);
         int rndY = rnd.nextInt(generationSize * 2 - 1);
 
         while (level.getMap(rndX, rndY) != 0) {
-            rndX = rnd.nextInt(generationSize/2 * 2 - 1);
+            rndX = rnd.nextInt(generationSize / 2 * 2 - 1);
             rndY = rnd.nextInt(generationSize * 2 - 1);
         }
         return new Position(rndX, rndY);
     }
 
-
+    /**
+     * A pontszámok lekérdezése az adtbázisból
+     *
+     * @return a pontszámok
+     * @throws SQLException SQL kivétel
+     */
     public ArrayList<HighScore> getHighScores() throws SQLException {
         return database.getHighScores();
     }
 
+    /**
+     * A játék végének ellenőrzése
+     *
+     * @return logikai érték a játék végéről
+     */
     public boolean isEnded() {
         return player.getLocation().x + 1 == dragon.getLocation().x && player.getLocation().y == dragon.getLocation().y ||
                 player.getLocation().x - 1 == dragon.getLocation().x && player.getLocation().y == dragon.getLocation().y ||
@@ -98,10 +184,18 @@ public class Game {
                 player.getLocation().x == dragon.getLocation().x && player.getLocation().y - 1 == dragon.getLocation().y;
     }
 
+    /**
+     * A játékos elérte-e a labirintus végét
+     *
+     * @return logikai érték a célbaérésről
+     */
     public boolean isCompleted() {
         return player.getLocation().x == 1 && player.getLocation().y == level.getRealSize() && !isEnded();
     }
 
+    /**
+     * Új pálya generálása
+     */
     public void newLevel() {
         if (randomized) {
             Random rnd = new Random();
@@ -113,14 +207,30 @@ public class Game {
         dragon = new Dragon(generateStart());
     }
 
+    /**
+     * A generálási méret lekérdezése
+     *
+     * @return generálási méret
+     */
     public int getGenerationSize() {
         return generationSize;
     }
 
+    /**
+     * A mátrix egy mezőjének lekérdezése
+     *
+     * @param p koordináta
+     * @return szabad-e a mező
+     */
     public boolean isFree(Position p) {
         return level.getMap(p.x, p.y) == 0;
     }
 
+    /**
+     * A játékos mozgatásának algoritmusa
+     *
+     * @param d mozgatás iránya
+     */
     public void movePlayer(Direction d) {
         Position curr = player.getLocation();
         Position next = curr.moveNext(d);
@@ -129,6 +239,9 @@ public class Game {
         }
     }
 
+    /**
+     * A sárkány mozgatásának algoritmusa
+     */
     public void moveDragon() {
         Position curr = dragon.getLocation();
         Position next = curr.moveNext(dragon.getCurrentD());
@@ -137,20 +250,21 @@ public class Game {
         } else {
             dragon.newDirection(isFree(curr.moveNext(Direction.UP)), isFree(curr.moveNext(Direction.DOWN)), isFree(curr.moveNext(Direction.LEFT)), isFree(curr.moveNext(Direction.RIGHT)));
         }
-        if(isEnded())
-        {
+        if (isEnded()) {
             try {
-                database.putHighScore(playerName,calculateScore());
+                database.putHighScore(playerName, calculateScore());
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public int calculateScore(){
-        if(randomized)
-            return completedCount ;
-        else return  completedCount;
-
+    /**
+     * A pontszám kiszámítása
+     *
+     * @return a pontszám
+     */
+    public int calculateScore() {
+        return completedCount;
     }
 }
