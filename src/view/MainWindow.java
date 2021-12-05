@@ -46,11 +46,11 @@ public class MainWindow extends JFrame {
     /**
      * A nagyítás menüje
      */
-    private final JMenu scaling;
+    private final JMenu scalingMenu;
     /**
      * Az eltelt másodpercek számlálója
      */
-    private int sec;
+    private int seconds;
     /**
      * A játék egy példánya
      */
@@ -136,11 +136,11 @@ public class MainWindow extends JFrame {
         createDifficulty("Lehetetlen", 25, 4);
         menuSettings.add(difficultyMenu);
 
-        scaling = new JMenu("Nagyítás");
+        scalingMenu = new JMenu("Nagyítás");
         createScaling("Kicsi", 25);
         createScaling("Közepes", 40);
         createScaling("Nagy", 50);
-        menuSettings.add(scaling);
+        menuSettings.add(scalingMenu);
 
         menuBar.add(menuSettings);
 
@@ -187,7 +187,7 @@ public class MainWindow extends JFrame {
         controls();
 
         stepTimer.start();
-        elapsedTimer = new Timer(1000, evt -> elapsedTime.setText("Eltelt idő: " + (sec += 1)));
+        elapsedTimer = new Timer(1000, evt -> elapsedTime.setText("Eltelt idő: " + (seconds += 1)));
         elapsedTimer.start();
         setResizable(false);
         resize();
@@ -270,7 +270,7 @@ public class MainWindow extends JFrame {
             board.setScale(size);
             resize();
         });
-        scaling.add(scalingVal);
+        scalingMenu.add(scalingVal);
     }
 
     /**
@@ -279,11 +279,11 @@ public class MainWindow extends JFrame {
     private void controls() {
         addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(KeyEvent ke) {
-                super.keyPressed(ke);
-                int kk = ke.getKeyCode();
+            public void keyPressed(KeyEvent key) {
+                super.keyPressed(key);
+                int keyCode = key.getKeyCode();
                 if (!game.isEnded() && game.getPlayer().isCanMove()) {
-                    Direction d = switch (kk) {
+                    Direction d = switch (keyCode) {
                         case KeyEvent.VK_LEFT -> Direction.LEFT;
                         case KeyEvent.VK_RIGHT -> Direction.RIGHT;
                         case KeyEvent.VK_UP -> Direction.UP;
@@ -339,7 +339,7 @@ public class MainWindow extends JFrame {
      */
     private void resetElapsedTime() {
         elapsedTime.setText("Eltelt idő: 0");
-        sec = 0;
+        seconds = 0;
         elapsedTimer.restart();
     }
 
