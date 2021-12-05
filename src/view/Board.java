@@ -12,26 +12,27 @@ import java.awt.geom.Ellipse2D;
  *
  */
 public class Board extends JPanel {
-    /***
-     *
-     */
-    private boolean canMove;
+
+
     /**
-     *
+     * A játék egy példánya
      */
     private Game game;
     /**
-     *
+     * A teljes tábla látható-e
      */
     private boolean isDark;
     /**
-     *
+     * A nagyítás mértéke
      */
     private int scale;
+
     /**
-     * @param game
+     * A tábla példányosítása
+     * @param game a játék egy példánya
      */
     public Board(Game game) {
+        int FPS = 1000;
         this.game = game;
         this.isDark = true;
         this.scale = 40;
@@ -39,22 +40,23 @@ public class Board extends JPanel {
         game.getDragon().setDrawLoc(new Position(game.getDragon().getLocation().x * scale, game.getDragon().getLocation().y * scale));
 
         setBoardSize();
-        Timer refreshTimer = new Timer(0, evt -> {
-            repaint();
-        });
+        Timer refreshTimer = new Timer(1000 / FPS, evt -> repaint());
         refreshTimer.start();
-        canMove = true;
+
     }
 
     /**
-     * @return
+     * A nagyítás mértékének lekérdezése
+     * @return a nagyítás mértéke
      */
-    public boolean isCanMove() {
-        return canMove;
+    public int getScale() {
+        return scale;
     }
 
+
     /**
-     * @param scale
+     * A nagyítás mértékének átállítása
+     * @param scale a nagyítás új mértéke
      */
     public void setScale(int scale) {
         this.scale = scale;
@@ -63,36 +65,37 @@ public class Board extends JPanel {
     }
 
     /**
-     * @param game
+     * Új tábla létrehozása
+     * @param game a játék egy példánya
      */
     public void newBoard(Game game) {
         this.game = game;
         game.getPlayer().setDrawLoc(new Position(game.getPlayer().getLocation().x * scale, game.getPlayer().getLocation().y * scale));
         game.getDragon().setDrawLoc(new Position(game.getDragon().getLocation().x * scale, game.getDragon().getLocation().y * scale));
         setBoardSize();
-        canMove = true;
+
     }
 
     /**
-     *
+     * A pálya láthatóságának kapcsolása
      */
     public void toggleDark() {
         isDark = !isDark;
     }
 
     /**
-     *
+     * A pálya átméretezése
      */
     public void setBoardSize() {
         Dimension dim = new Dimension((game.getLevel().getRealSize() + 2) * scale, (game.getLevel().getRealSize() + 2) * scale);
         setPreferredSize(dim);
         setMaximumSize(dim);
         setSize(dim);
-        repaint();
     }
 
     /**
-     * @param g
+     * A játék kirajzolása
+     * @param g grafika osztály
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -102,17 +105,17 @@ public class Board extends JPanel {
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
         drawMap(g2d);
-        canMove = game.getPlayer().animate(g2d, game, scale);
+        game.getPlayer().animate(g2d, game, scale);
         game.getDragon().animate(g2d, game, scale);
         drawAura(g2d);
 
-        repaint();
         g2d.dispose();
         g.dispose();
     }
 
     /**
-     * @param g2d
+     * A pálya kirajzolása
+     * @param g2d grafika osztály
      */
     private void drawMap(Graphics2D g2d) {
         g2d.setColor(Color.GRAY);
@@ -126,7 +129,7 @@ public class Board extends JPanel {
         for (int i = 0; i < game.getMapSize(); i++) {
             for (int j = 0; j < game.getMapSize(); j++) {
                 {
-                    if (game.getLevel().getMap(i, j) == 1) {
+                    if (game.getLevel().getMapValue(i, j) == 1) {
                         g2d.setColor(Color.BLACK);
                         g2d.drawRect(j * scale, i * scale, scale, scale);
                         g2d.fillRect(j * scale, i * scale, scale, scale);
@@ -137,8 +140,8 @@ public class Board extends JPanel {
     }
 
     /***
-     *
-     * @param g2d
+     * A nem látható területek letakarása
+     * @param g2d grafika osztály
      */
     private void drawAura(Graphics2D g2d) {
         if (isDark) {

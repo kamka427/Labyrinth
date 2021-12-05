@@ -5,24 +5,24 @@ import java.util.ArrayList;
 
 public class Database {
     /**
-     *
+     * Kapcsolat a MySQL adatbázissal
      */
     private final Connection connection;
     /**
-     *
-     */
-    PreparedStatement insertStatement;
-    /**
-     *
-     */
-    PreparedStatement deleteStatement;
-    /**
-     *
+     * A tárolt adatok maximális mérete
      */
     private final int maxScores;
+    /**
+     * Query a beszúráshoz
+     */
+    private PreparedStatement insertStatement;
+    /**
+     * Query a törléshez
+     */
+    private PreparedStatement deleteStatement;
 
     /**
-     *
+     * Az adatbázis példányosítása
      */
     public Database() {
         Connection c = null;
@@ -44,19 +44,19 @@ public class Database {
             e.printStackTrace();
         }
 
-        try {
+        /*try {
             System.out.println(getHighScores());
         } catch (SQLException e) {
             e.printStackTrace();
-        }
+        }*/
         maxScores = 10;
 
     }
 
     /**
-     *
-     * @return
-     * @throws SQLException
+     * Pontszámok lekérdezése
+     * @return a pontszámok listája
+     * @throws SQLException SQL kivétel
      */
     public ArrayList<HighScore> getHighScores() throws SQLException {
         String query = "SELECT * FROM SCORES";
@@ -73,17 +73,17 @@ public class Database {
     }
 
     /**
-     *
-     * @param name
-     * @param score
-     * @throws SQLException
+     * Pontszám beszúrása az adatbázisba
+     * @param name játékos neve
+     * @param score játékos pontszáma
+     * @throws SQLException SQL kivétel
      */
     public void putHighScore(String name, int score) throws SQLException {
         ArrayList<HighScore> highScores = getHighScores();
         if (highScores.size() < maxScores) {
             insertScore(name, score);
         } else {
-            int leastScore = highScores.get(highScores.size() - 1).completed;
+            int leastScore = highScores.get(highScores.size() - 1).score;
             if (leastScore < score) {
                 deleteScores(leastScore);
                 insertScore(name, score);
@@ -92,26 +92,26 @@ public class Database {
     }
 
     /**
-     *
-     * @param highScores
+     * A pontszámok listájának rendezése a pontok nagysága szerint
+     * @param highScores rendezendő lista
      */
     private void sortHighScores(ArrayList<HighScore> highScores) {
-        highScores.sort((a, b) -> b.completed - a.completed);
+        highScores.sort((a, b) -> b.score - a.score);
     }
 
     /**
-     *
-     * @param name
-     * @param score
-     * @throws SQLException
+     * Pontszámok beszúrása Queryvel amennyiben szükséges
+     * @param name játékos neve
+     * @param score játékos pontszáma
+     * @throws SQLException SQL kivétel
      */
     private void insertScore(String name, int score) throws SQLException {
         boolean doUpdate = true;
 
 
-        for (HighScore val: getHighScores()) {
-            if(val.id.equals(name))
-                doUpdate = (score > val.completed);
+        for (HighScore val : getHighScores()) {
+            if (val.name.equals(name))
+                doUpdate = (score > val.score);
         }
         if (doUpdate) {
             insertStatement.setString(1, name);
@@ -122,9 +122,9 @@ public class Database {
     }
 
     /**
-     *
-     * @param score
-     * @throws SQLException
+     * Egy Pontszám törlése
+     * @param score Törlendő pontszám
+     * @throws SQLException  SQL kivétel
      */
     private void deleteScores(int score) throws SQLException {
         deleteStatement.setInt(1, score);

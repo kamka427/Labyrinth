@@ -6,12 +6,13 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 /**
- *
+ * A pontszám megjelenítés dialógus osztálya
  */
 public class HighScoreWindow extends JDialog {
     /**
-     * @param highScores
-     * @param parent
+     * A pontszám dialógus példányosítása
+     * @param highScores a pontszámok listája
+     * @param parent a dialógus szülője
      */
     public HighScoreWindow(ArrayList<HighScore> highScores, JFrame parent) {
         super(parent, true);

@@ -38,7 +38,7 @@ public class MazeGenerator {
      * @param top  a labirintus tetje
      * @return nem lépnénk-e ki a labirintusból
      */
-    private static boolean between(int curr, int top) {
+    private boolean between(int curr, int top) {
         return (curr >= 0) && (curr < top);
     }
 
@@ -56,7 +56,7 @@ public class MazeGenerator {
      *
      * @return normál mátrix szövegként
      */
-    public String convertToString() {
+    private String convertToString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
@@ -78,7 +78,7 @@ public class MazeGenerator {
      *
      * @param data mátrix szöveges formában
      */
-    public void convertToMatrix(String data) {
+    private void convertToMatrix(String data) {
         int k = 0;
         for (int i = 0; i < matrixSize; i++) {
             for (int j = 0; j < matrixSize; j++) {
@@ -111,7 +111,7 @@ public class MazeGenerator {
     /**
      * Falak eltávolítása a labirintusból
      */
-    public void removeWalls() {
+    private void removeWalls() {
 
         Random rnd = new Random();
 
@@ -151,6 +151,9 @@ public class MazeGenerator {
     private enum Exploration {
         N(1, 0, -1), S(2, 0, 1), E(4, 1, 0), W(8, -1, 0);
 
+        /*
+          ellentétes irányok
+         */
         static {
             N.opposite = S;
             S.opposite = N;
@@ -158,11 +161,30 @@ public class MazeGenerator {
             W.opposite = E;
         }
 
+        /**
+         * tárolt bit
+         */
         private final int bit;
+        /**
+         * visszintes koordináta
+         */
         private final int x;
+        /**
+         * függőleges koordináta
+         */
         private final int y;
+        /**
+         * ellentéte az iránynak
+         */
         private Exploration opposite;
 
+        /**
+         * Példányosítás
+         *
+         * @param bit bit
+         * @param x visszintes koordináta
+         * @param y függőleges koordináta
+         */
         Exploration(int bit, int x, int y) {
             this.bit = bit;
             this.x = x;

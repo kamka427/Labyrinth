@@ -12,68 +12,61 @@ import java.sql.SQLException;
 
 public class MainWindow extends JFrame {
     /**
-     *
+     * A tábla példánya
      */
     private final Board board;
     /**
-     *
+     * A sárkány mozgatásának időzítője
      */
     private final Timer stepTimer;
     /**
-     *
+     * Az eltelt időt mutató timer
      */
     private final Timer elapsedTimer;
     /**
-     *
+     * A játékos neve
      */
-    String playerName;
+    private final String playerName;
     /**
-     *
+     * Teljesített pályák számának JLabel-e
      */
-    JLabel completedCount;
+    private final JLabel completedCount;
     /**
-     *
+     * Eltelt idő JLabel-e
      */
-    JLabel elapsedTime;
+    private final JLabel elapsedTime;
     /**
-     *
+     * A pályaméretek menüje
      */
-    JMenuBar menuBar;
+    private final JMenu tableSizeMenu;
     /**
-     *
+     * A nehézségel menüje
      */
-    JMenu menuGame;
+    private final JMenu difficultyMenu;
     /**
-     *
+     * A nagyítás menüje
      */
-    JMenu menuSettings;
+    private final JMenu scaling;
     /**
-     *
-     */
-    JMenu tableSizeMenu;
-    /**
-     *
-     */
-    JMenu difficultyMenu;
-    /**
-     *
-     */
-    JMenu scaling;
-    /**
-     *
-     */
-    JMenu menuTest;
-    /**
-     *
+     * Az eltelt másodpercek számlálója
      */
     private int sec;
     /**
-     *
+     * A játék egy példánya
      */
     private Game game;
+    /**
+     * A pályaméret pontszorzója
+     */
+    private int mapSizeMul;
+    /**
+     * A nehézség pontszorzója
+     */
+    private int difficultyMul;
+
 
     /**
-     *
+     * A játékablak példányosítása
      */
     public MainWindow() {
         setTitle("Labirintus");
@@ -81,6 +74,8 @@ public class MainWindow extends JFrame {
 
         playerName = JOptionPane.showInputDialog("Kérlek add meg a nevedet!", "");
         game = new Game(8, playerName);
+        mapSizeMul = 2;
+        difficultyMul = 2;
         JPanel statusPanel = new JPanel();
 
         completedCount = new JLabel();
@@ -95,13 +90,15 @@ public class MainWindow extends JFrame {
         add(board = new Board(game), BorderLayout.CENTER);
         stepTimer = createTimer();
 
-        menuBar = new JMenuBar();
+
+        JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        menuGame = new JMenu("Játék");
+
+        JMenu menuGame = new JMenu("Játék");
         menuBar.add(menuGame);
         JMenuItem newGame = new JMenuItem("Új Játék");
-        newGame.addActionListener((ActionEvent e) -> startNew(completedCount));
+        newGame.addActionListener((ActionEvent e) -> startNew());
         menuGame.add(newGame);
         JMenuItem newPlayer = new JMenuItem("Új Játékos");
         newPlayer.addActionListener((ActionEvent e) -> game.setPlayerName(JOptionPane.showInputDialog("Kérlek add meg a nevedet!", "")));
@@ -110,16 +107,18 @@ public class MainWindow extends JFrame {
         exit.addActionListener((ActionEvent e) -> System.exit(0));
         menuGame.add(exit);
 
-        menuSettings = new JMenu("Beállítások");
+
+        JMenu menuSettings = new JMenu("Beállítások");
         tableSizeMenu = new JMenu("Pályaméret");
 
-        createMapSize("Kicsi (13x13)", 6);
-        createMapSize("Közepes (17x17)", 8);
-        createMapSize("Nagy (21x21)", 10);
+        createMapSize("Kicsi (13x13)", 6, 1);
+        createMapSize("Közepes (17x17)", 8, 2);
+        createMapSize("Nagy (21x21)", 10, 3);
 
         JMenuItem randomized = new JMenuItem("Változó");
         randomized.addActionListener((ActionEvent e) -> {
             stepTimer.stop();
+            setMapSizeMul(3);
             game = new Game(playerName);
             board.newBoard(game);
             completedCount.setText(game.getCompletedCount());
@@ -131,10 +130,10 @@ public class MainWindow extends JFrame {
 
         difficultyMenu = new JMenu("Nehézség");
 
-        createDifficulty("Könnyű", 500);
-        createDifficulty("Közepes", 100);
-        createDifficulty("Nehéz", 10);
-        createDifficulty("Lehetetlen", 1);
+        createDifficulty("Könnyű", 500, 1);
+        createDifficulty("Közepes", 100, 2);
+        createDifficulty("Nehéz", 50, 3);
+        createDifficulty("Lehetetlen", 25, 4);
         menuSettings.add(difficultyMenu);
 
         scaling = new JMenu("Nagyítás");
@@ -145,7 +144,8 @@ public class MainWindow extends JFrame {
 
         menuBar.add(menuSettings);
 
-        menuTest = new JMenu("Tesztelés");
+
+        JMenu menuTest = new JMenu("Tesztelés");
 
         JMenuItem dark = new JMenuItem("Sötétség");
         dark.addActionListener((ActionEvent e) -> board.toggleDark());
@@ -184,7 +184,7 @@ public class MainWindow extends JFrame {
 
         menuGame.add(menuHighScores);
 
-        controls(completedCount);
+        controls();
 
         stepTimer.start();
         elapsedTimer = new Timer(1000, evt -> elapsedTime.setText("Eltelt idő: " + (sec += 1)));
@@ -196,22 +196,40 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
-     * @param args
+     * A játékablak létrehozása
+     * @param args argumentumok
      */
     public static void main(String[] args) {
         new MainWindow();
     }
 
     /**
-     *
-     * @param text
-     * @param size
+     * A pályaméret szorzó beállítása
+     * @param mapSizeMul az új szorzóérték
      */
-    private void createMapSize(String text, int size) {
+    public void setMapSizeMul(int mapSizeMul) {
+        this.mapSizeMul = mapSizeMul;
+    }
+
+    /**
+     * A nehézség szorzó beállítása
+     * @param difficultyMul az új szorzóérték
+     */
+    public void setDifficultyMul(int difficultyMul) {
+        this.difficultyMul = difficultyMul;
+    }
+
+    /**
+     * Metódus pályaméret opció létrehozásához
+     * @param text a menüpont szövege
+     * @param size a pályaméret
+     * @param mapSizeMul a szorzó értéke
+     */
+    private void createMapSize(String text, int size, int mapSizeMul) {
         JMenuItem mapSize = new JMenuItem(text);
         mapSize.addActionListener((ActionEvent e) -> {
             stepTimer.stop();
+            setMapSizeMul(mapSizeMul);
             game = new Game(size, playerName);
             board.newBoard(game);
             completedCount.setText(game.getCompletedCount());
@@ -223,15 +241,17 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
-     * @param text
-     * @param time
+     * Metódus nehézség opció létrehozásához
+     * @param text a menüpont szövege
+     * @param time a léptetés gyorsasága
+     * @param difficultyMul a szorzó értéke
      */
-    private void createDifficulty(String text, int time) {
+    private void createDifficulty(String text, int time, int difficultyMul) {
         JMenuItem difficulty = new JMenuItem(text);
         difficulty.addActionListener((ActionEvent e) -> {
             stepTimer.stop();
-            startNew(completedCount);
+            setDifficultyMul(difficultyMul);
+            startNew();
             stepTimer.setDelay(time);
             stepTimer.start();
             resetElapsedTime();
@@ -240,9 +260,9 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
-     * @param text
-     * @param size
+     * Metódus nagyítás opció létrehozásához
+     * @param text a menüpont szövege
+     * @param size a nagyítás mértéke
      */
     private void createScaling(String text, int size) {
         JMenuItem scalingVal = new JMenuItem(text);
@@ -254,16 +274,15 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
-     * @param completedCount
+     * Az irányítás létrehozása
      */
-    private void controls(JLabel completedCount) {
+    private void controls() {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent ke) {
                 super.keyPressed(ke);
                 int kk = ke.getKeyCode();
-                if (!game.isEnded() && board.isCanMove()) {
+                if (!game.isEnded() && game.getPlayer().isCanMove()) {
                     Direction d = switch (kk) {
                         case KeyEvent.VK_LEFT -> Direction.LEFT;
                         case KeyEvent.VK_RIGHT -> Direction.RIGHT;
@@ -275,11 +294,10 @@ public class MainWindow extends JFrame {
 
                     if (!game.isEnded() && d != null) {
                         game.movePlayer(d);
-
                     }
 
                     if (game.isCompleted()) {
-                        game.calculateScore();
+
                         stepTimer.stop();
                         game.newLevel();
                         board.newBoard(game);
@@ -295,7 +313,7 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
+     * Az átméretezés metódusa
      */
     private void resize() {
         board.setBoardSize();
@@ -303,11 +321,11 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
-     * @param completedCount
+     * Új játék indítása
      */
-    private void startNew(JLabel completedCount) {
+    private void startNew() {
         stepTimer.stop();
+        game.saveScore(difficultyMul, mapSizeMul);
         game = new Game(game.getGenerationSize(), playerName);
         board.newBoard(game);
         completedCount.setText(game.getCompletedCount());
@@ -317,7 +335,7 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
+     * Eltelt idő újraindítása
      */
     private void resetElapsedTime() {
         elapsedTime.setText("Eltelt idő: 0");
@@ -326,19 +344,26 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     *
-     * @return
+     * A sárkány mozgatásáért felelős timer létrehozása
+     * @return a létrehozott timer
      */
     private Timer createTimer() {
         final Timer timer;
         timer = new Timer(100, evt -> {
+            if (((Timer) evt.getSource()).getDelay() < 30)
+                game.getDragon().setMoveSpeed(board.getScale() / 2);
+            else
+                game.getDragon().setMoveSpeed(5);
             if (game.isEnded()) {
                 elapsedTimer.stop();
                 ((Timer) evt.getSource()).stop();
-                String msg = "Meghaltál!";
+                String msg = "Vége a játéknak! " + (game.getCompletedCountValue() * difficultyMul * mapSizeMul) + " pontot szereztél!";
                 JOptionPane.showMessageDialog(MainWindow.this, msg, "Játék vége", JOptionPane.INFORMATION_MESSAGE);
+                game.saveScore(difficultyMul, mapSizeMul);
+                startNew();
             } else {
-                game.moveDragon();
+                if (game.getDragon().isCanMove())
+                    game.moveDragon();
             }
 
         });

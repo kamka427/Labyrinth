@@ -2,31 +2,31 @@ package persistence;
 
 
 /**
- *
+ * A pontszám osztály implementációja
  */
 public class HighScore {
-    public final String id;
-    public final int completed;
+    public final String name;
+    public final int score;
 
     /**
-     *
-     * @param id
-     * @param completed
+     * Egy pontszám példányosítása
+     * @param name azonosító
+     * @param score teljesített pontszám
      */
-    public HighScore(String id, int completed){
-      this.id = id;
-      this.completed = completed;
+    public HighScore(String name, int score) {
+        this.name = name;
+        this.score = score;
     }
 
     /**
-     *
-     * @return
+     * Egy pontszám belső állapotának szöveggé alakítása
+     * @return objektum szövegként
      */
     @Override
     public String toString() {
         return "HighScore{" +
-                "id='" + id + '\'' +
-                ", completed=" + completed +
+                "name='" + name + '\'' +
+                ", score=" + score +
                 '}';
     }
 }

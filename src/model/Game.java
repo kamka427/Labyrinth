@@ -73,7 +73,7 @@ public class Game {
      */
     public Game(String playerName) {
         Random rnd = new Random();
-        generationSize = rnd.nextInt(10 - 6) + 6;
+        generationSize = rnd.nextInt(12 - 6) + 6;
         this.mapSize = (generationSize * 2 + 1);
         level = new Level(generationSize);
         player = new Player(new Position(generationSize * 2 - 1, 1));
@@ -100,6 +100,10 @@ public class Game {
      */
     public String getCompletedCount() {
         return "Teljesített pályák száma: " + completedCount;
+    }
+
+    public int getCompletedCountValue() {
+        return completedCount;
     }
 
     /**
@@ -150,12 +154,12 @@ public class Game {
      *
      * @return a kezdőpozíció
      */
-    Position generateStart() {
+    private Position generateStart() {
         Random rnd = new Random();
         int rndX = rnd.nextInt(generationSize / 2 * 2 - 1);
         int rndY = rnd.nextInt(generationSize * 2 - 1);
 
-        while (level.getMap(rndX, rndY) != 0) {
+        while (level.getMapValue(rndX, rndY) != 0) {
             rndX = rnd.nextInt(generationSize / 2 * 2 - 1);
             rndY = rnd.nextInt(generationSize * 2 - 1);
         }
@@ -222,8 +226,8 @@ public class Game {
      * @param p koordináta
      * @return szabad-e a mező
      */
-    public boolean isFree(Position p) {
-        return level.getMap(p.x, p.y) == 0;
+    private boolean isFree(Position p) {
+        return level.getMapValue(p.x, p.y) == 0;
     }
 
     /**
@@ -235,7 +239,7 @@ public class Game {
         Position curr = player.getLocation();
         Position next = curr.moveNext(d);
         if (isFree(next) && !isEnded()) {
-            player.moveChar(d);
+            player.move(d);
         }
     }
 
@@ -246,25 +250,25 @@ public class Game {
         Position curr = dragon.getLocation();
         Position next = curr.moveNext(dragon.getCurrentD());
         if (isFree(next)) {
-            dragon.moveChar(dragon.getCurrentD());
+            dragon.move(dragon.getCurrentD());
         } else {
             dragon.newDirection(isFree(curr.moveNext(Direction.UP)), isFree(curr.moveNext(Direction.DOWN)), isFree(curr.moveNext(Direction.LEFT)), isFree(curr.moveNext(Direction.RIGHT)));
-        }
-        if (isEnded()) {
-            try {
-                database.putHighScore(playerName, calculateScore());
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     /**
-     * A pontszám kiszámítása
+     * A pontszám mentése az adatbázisba
      *
-     * @return a pontszám
+     * @param difficultyMul nehézség szorzó
+     * @param mapSizeMul    pályaméret szorzó
      */
-    public int calculateScore() {
-        return completedCount;
+    public void saveScore(int difficultyMul, int mapSizeMul) {
+        try {
+            database.putHighScore(playerName, completedCount * difficultyMul * mapSizeMul);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
+
 }

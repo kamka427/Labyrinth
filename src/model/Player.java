@@ -11,7 +11,7 @@ public class Player extends Character {
      *
      * @param startLocation kezdőpozíció
      */
-    Player(Position startLocation) {
+    public Player(Position startLocation) {
         super(startLocation);
     }
 
@@ -31,34 +31,32 @@ public class Player extends Character {
      * @param g2d   grafika osztály
      * @param game  játék osztály
      * @param scale nagyítás mértéke
-     * @return véget ért-e az animáció
      */
-    public boolean animate(Graphics2D g2d, Game game, int scale) {
-        boolean canMove;
+    public void animate(Graphics2D g2d, Game game, int scale) {
         if (getDrawLoc().x == game.getPlayer().getLocation().x * scale && getDrawLoc().y == game.getPlayer().getLocation().y * scale) {
             g2d.setColor(Color.BLUE);
             g2d.drawOval(game.getPlayer().getLocation().y * scale + 2, game.getPlayer().getLocation().x * scale + 2, scale - 4, scale - 4);
             g2d.fillOval(game.getPlayer().getLocation().y * scale + 2, game.getPlayer().getLocation().x * scale + 2, scale - 4, scale - 4);
-            canMove = true;
+            setCanMove(true);
         } else {
-            canMove = false;
+            setCanMove(false);
             if (getDrawLoc().x < game.getPlayer().getLocation().x * scale) {
                 draw(g2d, scale);
-                getDrawLoc().x += 1;
+                getDrawLoc().x += getMoveSpeed();
             }
             if (getDrawLoc().x > game.getPlayer().getLocation().x * scale) {
                 draw(g2d, scale);
-                getDrawLoc().x -= 1;
+                getDrawLoc().x -= getMoveSpeed();
             }
             if (getDrawLoc().y < game.getPlayer().getLocation().y * scale) {
                 draw(g2d, scale);
-                getDrawLoc().y += 1;
+                getDrawLoc().y += getMoveSpeed();
             }
             if (getDrawLoc().y > game.getPlayer().getLocation().y * scale) {
                 draw(g2d, scale);
-                getDrawLoc().y -= 1;
+                getDrawLoc().y -= getMoveSpeed();
             }
         }
-        return canMove;
+
     }
 }
