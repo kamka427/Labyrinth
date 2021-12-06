@@ -9,7 +9,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
+/**
+ * A játék ablakának implementációja
+ *
+ * @author Neszlényi Kálmán Balázs
+ */
 public class MainWindow extends JFrame {
     /**
      * A tábla példánya
@@ -23,10 +33,6 @@ public class MainWindow extends JFrame {
      * Az eltelt időt mutató timer
      */
     private final Timer elapsedTimer;
-    /**
-     * A játékos neve
-     */
-    private final String playerName;
     /**
      * Teljesített pályák számának JLabel-e
      */
@@ -47,6 +53,10 @@ public class MainWindow extends JFrame {
      * A nagyítás menüje
      */
     private final JMenu scalingMenu;
+    /**
+     * A játékos neve
+     */
+    private String playerName;
     /**
      * Az eltelt másodpercek számlálója
      */
@@ -72,7 +82,7 @@ public class MainWindow extends JFrame {
         setTitle("Labirintus");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        playerName = JOptionPane.showInputDialog("Kérlek add meg a nevedet!", "");
+        playerName = JOptionPane.showInputDialog(this, "Kérlek add meg a nevedet!", "Névmegadás", JOptionPane.QUESTION_MESSAGE);
         game = new Game(8, playerName);
         mapSizeMul = 2;
         difficultyMul = 2;
@@ -101,7 +111,11 @@ public class MainWindow extends JFrame {
         newGame.addActionListener((ActionEvent e) -> startNew());
         menuGame.add(newGame);
         JMenuItem newPlayer = new JMenuItem("Új Játékos");
-        newPlayer.addActionListener((ActionEvent e) -> game.setPlayerName(JOptionPane.showInputDialog("Kérlek add meg a nevedet!", "")));
+        newPlayer.addActionListener((ActionEvent e) -> {
+                    playerName = JOptionPane.showInputDialog(this, "Kérlek add meg a nevedet!", "Névmegadás", JOptionPane.QUESTION_MESSAGE);
+                    startNew();
+                }
+        );
         menuGame.add(newPlayer);
         JMenuItem exit = new JMenuItem("Kilépés");
         exit.addActionListener((ActionEvent e) -> System.exit(0));
@@ -197,6 +211,7 @@ public class MainWindow extends JFrame {
 
     /**
      * A játékablak létrehozása
+     *
      * @param args argumentumok
      */
     public static void main(String[] args) {
@@ -205,6 +220,7 @@ public class MainWindow extends JFrame {
 
     /**
      * A pályaméret szorzó beállítása
+     *
      * @param mapSizeMul az új szorzóérték
      */
     public void setMapSizeMul(int mapSizeMul) {
@@ -213,6 +229,7 @@ public class MainWindow extends JFrame {
 
     /**
      * A nehézség szorzó beállítása
+     *
      * @param difficultyMul az új szorzóérték
      */
     public void setDifficultyMul(int difficultyMul) {
@@ -221,8 +238,9 @@ public class MainWindow extends JFrame {
 
     /**
      * Metódus pályaméret opció létrehozásához
-     * @param text a menüpont szövege
-     * @param size a pályaméret
+     *
+     * @param text       a menüpont szövege
+     * @param size       a pályaméret
      * @param mapSizeMul a szorzó értéke
      */
     private void createMapSize(String text, int size, int mapSizeMul) {
@@ -242,8 +260,9 @@ public class MainWindow extends JFrame {
 
     /**
      * Metódus nehézség opció létrehozásához
-     * @param text a menüpont szövege
-     * @param time a léptetés gyorsasága
+     *
+     * @param text          a menüpont szövege
+     * @param time          a léptetés gyorsasága
      * @param difficultyMul a szorzó értéke
      */
     private void createDifficulty(String text, int time, int difficultyMul) {
@@ -261,6 +280,7 @@ public class MainWindow extends JFrame {
 
     /**
      * Metódus nagyítás opció létrehozásához
+     *
      * @param text a menüpont szövege
      * @param size a nagyítás mértéke
      */
@@ -345,13 +365,14 @@ public class MainWindow extends JFrame {
 
     /**
      * A sárkány mozgatásáért felelős timer létrehozása
+     *
      * @return a létrehozott timer
      */
     private Timer createTimer() {
         final Timer timer;
         timer = new Timer(100, evt -> {
             if (((Timer) evt.getSource()).getDelay() < 30)
-                game.getDragon().setMoveSpeed(board.getScale() / 2);
+                game.getDragon().setMoveSpeed(board.getScale());
             else
                 game.getDragon().setMoveSpeed(5);
             if (game.isEnded()) {

@@ -1,13 +1,33 @@
 package model;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
  * Enum az irányok kezeléséhez
+ * A gyakorlati kódok alapján
+ * @author Neszlényi Kálmán Balázs
  */
 public enum Direction {
     /**
      * Az irányok
+     * Le
      */
-    DOWN(1, 0), LEFT(0, -1), UP(-1, 0), RIGHT(0, 1);
+    DOWN(1, 0),
+    /**
+     * Balra
+     */
+    LEFT(0, -1),
+    /**
+     * Fel
+     */
+    UP(-1, 0),
+    /**
+     * Jobbra
+     */
+    RIGHT(0, 1);
 
     /**
      * A koordináták

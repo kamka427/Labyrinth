@@ -6,9 +6,15 @@ import persistence.HighScore;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
  * A játékosztály
+ * @author Neszlényi Kálmán Balázs
  */
 public class Game {
     /**
@@ -96,12 +102,17 @@ public class Game {
     /**
      * A teljesített pályák számának lekérdezése
      *
-     * @return a teljesített pályák száma
+     * @return a teljesített pályák száma szövegként
      */
     public String getCompletedCount() {
         return "Teljesített pályák száma: " + completedCount;
     }
 
+    /**
+     * A teljesített pályák számának lekérdezése
+     *
+     * @return a teljesített pályák száma számként
+     */
     public int getCompletedCountValue() {
         return completedCount;
     }

@@ -2,7 +2,17 @@ package persistence;
 
 import java.sql.*;
 import java.util.ArrayList;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
+/**
+ * Az adatbázis kapcsolat implementációja
+ * A gyakorlati kódok alapján
+ * @author Neszlényi Kálmán Balázs
+ */
 public class Database {
     /**
      * Kapcsolat a MySQL adatbázissal
@@ -44,17 +54,12 @@ public class Database {
             e.printStackTrace();
         }
 
-        /*try {
-            System.out.println(getHighScores());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }*/
         maxScores = 10;
-
     }
 
     /**
      * Pontszámok lekérdezése
+     *
      * @return a pontszámok listája
      * @throws SQLException SQL kivétel
      */
@@ -74,13 +79,22 @@ public class Database {
 
     /**
      * Pontszám beszúrása az adatbázisba
-     * @param name játékos neve
+     *
+     * @param name  játékos neve
      * @param score játékos pontszáma
      * @throws SQLException SQL kivétel
      */
     public void putHighScore(String name, int score) throws SQLException {
         ArrayList<HighScore> highScores = getHighScores();
-        if (highScores.size() < maxScores) {
+
+        boolean exists = false;
+        for (HighScore val : getHighScores()) {
+            if (val.name.equals(name)) {
+                exists = true;
+            }
+        }
+
+        if (highScores.size() < maxScores || exists) {
             insertScore(name, score);
         } else {
             int leastScore = highScores.get(highScores.size() - 1).score;
@@ -93,6 +107,7 @@ public class Database {
 
     /**
      * A pontszámok listájának rendezése a pontok nagysága szerint
+     *
      * @param highScores rendezendő lista
      */
     private void sortHighScores(ArrayList<HighScore> highScores) {
@@ -101,7 +116,8 @@ public class Database {
 
     /**
      * Pontszámok beszúrása Queryvel amennyiben szükséges
-     * @param name játékos neve
+     *
+     * @param name  játékos neve
      * @param score játékos pontszáma
      * @throws SQLException SQL kivétel
      */
@@ -123,8 +139,9 @@ public class Database {
 
     /**
      * Egy Pontszám törlése
+     *
      * @param score Törlendő pontszám
-     * @throws SQLException  SQL kivétel
+     * @throws SQLException SQL kivétel
      */
     private void deleteScores(int score) throws SQLException {
         deleteStatement.setInt(1, score);

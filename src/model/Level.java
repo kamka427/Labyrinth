@@ -1,7 +1,13 @@
 package model;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
- * Szint osztály implementációja
+ * A szint osztály implementációja
+ * @author Neszlényi Kálmán Balázs
  */
 public class Level {
     /**
@@ -15,6 +21,7 @@ public class Level {
 
     /**
      * A pálya példányosítása
+     *
      * @param mapSize pályaméret
      */
     public Level(int mapSize) {
@@ -24,6 +31,7 @@ public class Level {
 
     /**
      * A pálya egy mezőjének lekérdezése
+     *
      * @param x visszintes koordináta
      * @param y függőleges koordináta
      * @return a pálya mezőjének értéke
@@ -34,6 +42,7 @@ public class Level {
 
     /**
      * A pálya normál méretének lekérdezése
+     *
      * @return a pálya valós mérete
      */
     public int getRealSize() {

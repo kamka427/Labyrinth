@@ -8,8 +8,15 @@ import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
+
 /**
- *
+ * A játék tábla grafikájának implementációja
+ * @author Neszlényi Kálmán Balázs
  */
 public class Board extends JPanel {
 
@@ -29,6 +36,7 @@ public class Board extends JPanel {
 
     /**
      * A tábla példányosítása
+     *
      * @param game a játék egy példánya
      */
     public Board(Game game) {
@@ -47,6 +55,7 @@ public class Board extends JPanel {
 
     /**
      * A nagyítás mértékének lekérdezése
+     *
      * @return a nagyítás mértéke
      */
     public int getScale() {
@@ -56,6 +65,7 @@ public class Board extends JPanel {
 
     /**
      * A nagyítás mértékének átállítása
+     *
      * @param scale a nagyítás új mértéke
      */
     public void setScale(int scale) {
@@ -66,6 +76,7 @@ public class Board extends JPanel {
 
     /**
      * Új tábla létrehozása
+     *
      * @param game a játék egy példánya
      */
     public void newBoard(Game game) {
@@ -95,6 +106,7 @@ public class Board extends JPanel {
 
     /**
      * A játék kirajzolása
+     *
      * @param g grafika osztály
      */
     @Override
@@ -115,6 +127,7 @@ public class Board extends JPanel {
 
     /**
      * A pálya kirajzolása
+     *
      * @param g2d grafika osztály
      */
     private void drawMap(Graphics2D g2d) {

@@ -4,9 +4,16 @@ import persistence.HighScore;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
- * Model a pontszámok megjelenítéséhez
+ * Modell a pontszámok megjelenítéséhez
+ * A gyakorlati kódok alapján
+ * @author Neszlényi Kálmán Balázs
  */
 public class HighScoreTableModel extends AbstractTableModel {
     /**
@@ -20,6 +27,7 @@ public class HighScoreTableModel extends AbstractTableModel {
 
     /**
      * A pontszám megjelenítés modelének példányosítása
+     *
      * @param highScores a pontszámok listája
      */
     public HighScoreTableModel(ArrayList<HighScore> highScores) {
@@ -28,6 +36,7 @@ public class HighScoreTableModel extends AbstractTableModel {
 
     /**
      * A sorok számának lekérdezése
+     *
      * @return a sorok száma
      */
     @Override
@@ -37,6 +46,7 @@ public class HighScoreTableModel extends AbstractTableModel {
 
     /**
      * Az oszlopok számának lekérdezése
+     *
      * @return az oszlopok száma
      */
     @Override
@@ -46,6 +56,7 @@ public class HighScoreTableModel extends AbstractTableModel {
 
     /**
      * Adott sorban és oszlopban lévő érték lekérdezése
+     *
      * @param r sor
      * @param c oszlop
      * @return az érték a megadott pozíción
@@ -59,6 +70,7 @@ public class HighScoreTableModel extends AbstractTableModel {
 
     /**
      * Egy oszlop nevének lekérdezése
+     *
      * @param i az oszlop index
      * @return az i.-edik oszlop neve
      */

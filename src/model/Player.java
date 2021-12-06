@@ -1,9 +1,15 @@
 package model;
 
 import java.awt.*;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
  * A játékos osztálya
+ * @author Neszlényi Kálmán Balázs
  */
 public class Player extends Character {
     /**

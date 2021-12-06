@@ -3,9 +3,16 @@ package model;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
  * Labirintusgenerátor osztály
+ * https://weblog.jamisbuck.org/2011/1/12/maze-generation-recursive-division-algorithm alapján
+ * @author Neszlényi Kálmán Balázs
  */
 public class MazeGenerator {
     private final int n;
@@ -45,7 +52,7 @@ public class MazeGenerator {
     /**
      * A mátrix lekérdezése
      *
-     * @ a mátrix
+     * @return a mátrix
      */
     public int[][] getMatrix() {
         return matrix;
@@ -182,8 +189,8 @@ public class MazeGenerator {
          * Példányosítás
          *
          * @param bit bit
-         * @param x visszintes koordináta
-         * @param y függőleges koordináta
+         * @param x   visszintes koordináta
+         * @param y   függőleges koordináta
          */
         Exploration(int bit, int x, int y) {
             this.bit = bit;

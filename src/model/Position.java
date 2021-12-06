@@ -1,7 +1,14 @@
 package model;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
  * Pozíció segédosztály
+ * A gyakorlati kódok alapján
+ * @author Neszlényi Kálmán Balázs
  */
 public class Position {
     /**

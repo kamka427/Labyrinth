@@ -2,8 +2,15 @@ package model;
 
 import java.awt.*;
 
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
+
 /**
  * Karakter absztrakt ősosztály
+ * @author Neszlényi Kálmán Balázs
  */
 public abstract class Character {
     /**

@@ -3,9 +3,15 @@ package model;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
+/*
+  Készítette: Neszlényi Kálmán Balázs
+  Neptun kód: DPU51T
+  Dátum: 2021. 12. 5.
+ */
 
 /**
  * A sárkány karakter osztálya
+ * @author Neszlényi Kálmán Balázs
  */
 public class Dragon extends Character {
     /**
