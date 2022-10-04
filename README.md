@@ -1,7 +1,7 @@
 # Labyrinth
 
 ## Summary
-A Labyrinth game implementation in Java.\
+A Labyrinth game implementation in Java using the MVP architectural pattern.\
 The game supports:
 - Generating randomized labyrinth using the recursive division algorithm
 - Scoreboard functionality, storing data in a SQLite database
