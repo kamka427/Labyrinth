@@ -1,6 +1,6 @@
 # Labyrinth
 
-# Summary
+## Summary
 A Labyrinth game implementation in Java.\
 The game supports:
 - Generating randomized labyrinth using the recursive division algorithm
@@ -9,7 +9,7 @@ The game supports:
 - Debug tools to check map generation
 
 
-# To run
+## To run
 ```Build the project in Netbeans with Ant.```
 > You can also use IntelliJ.
 
